@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务商调用分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: transparent;
+        }
+        #chart-container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 横坐标取前7个服务商
+            const providerNames = ['市交警支队', '市交通局', '市城管局', '城投集团', '公交集团', '地铁集团', '高德软件'];
+            
+            // 柱状高度随机，且精密分布在 100 至 200 之间
+            const providerData = [142, 185, 115, 168, 125, 195, 154];
+            
+            const textStyle = { color: '#000000' };
+
+            const chart = echarts.init(document.getElementById('chart-container'));
+            chart.setOption({
+                // 左上角“服务商服务调用次数”图名
+                title: {
+                    text: '服务商服务调用次数',
+                    textStyle: {
+                        color: '#000000',
+                        fontSize: 16,
+                        fontWeight: 'bold'
+                    },
+                    left: '2%',
+                    top: '2%'
+                },
+                tooltip: { 
+                    trigger: 'axis', 
+                    axisPointer: { type: 'shadow' } 
+                },
+                // 调整 grid 布局，确保水平文字有足够的显示空间
+                grid: { 
+                    left: '2%', 
+                    right: '4%', 
+                    bottom: '12%', 
+                    top: '25%', 
+                    containLabel: true 
+                },
+                xAxis: { 
+                    type: 'category', 
+                    data: providerNames, 
+                    axisLabel: { 
+                        color: '#000000', 
+                        interval: 0, 
+                        rotate: 0 // 设置为0度，使文字完全水平排列
+                    }
+                },
+                yAxis: { 
+                    type: 'value', 
+                    name: '数量/次',
+                    min: 0,
+                    max: 200,
+                    interval: 50, // 设定刻度间距为50
+                    nameTextStyle: {
+                        color: '#000000',
+                        align: 'left',         // 设置左对齐
+                        padding: [0, 0, 8, -28] // 微调边距，使其与图名、纵坐标数字实现完美左对齐
+                    },
+                    axisLabel: textStyle,
+                    splitLine: { 
+                        lineStyle: { color: '#f3f4f6' } 
+                    }
+                },
+                series: [{
+                    name: '调用次数', 
+                    type: 'bar', 
+                    barWidth: '40%',
+                    itemStyle: { 
+                        color: '#3b82f6', 
+                        borderRadius: [4, 4, 0, 0] // 柱子顶部设为圆角
+                    },
+                    data: providerData
+                }]
+            });
+
+            window.addEventListener('resize', function() {
+                chart.resize();
+            });
+        });
+    </script>
+</body>
+</html>
