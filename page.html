@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>时空底座能力中心</title>
+    <!-- 引入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Lucide 图标库 -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .view-hidden { display: none !important; }
+        .view-block { display: block !important; }
+        .view-flex { display: flex !important; }
+        
+        /* 自定义滚动条优化视觉 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900 min-h-screen flex flex-col">
+
+    <!-- ==================== 顶部导航栏 ==================== -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <!-- 第一行：居中标题 -->
+        <div class="w-full py-5 border-b border-gray-100 flex justify-center items-center relative">
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-wider flex items-center">
+                <i data-lucide="hexagon" class="text-blue-600 w-8 h-8 mr-3 fill-blue-50"></i>
+                时空底座能力中心
+            </h1>
+            <!-- 右上角用户头像 -->
+            <div class="absolute right-4 sm:right-8 flex items-center space-x-2 cursor-pointer" onclick="switchMain('personal')" title="进入个人中心">
+                <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200">政</div>
+                <span class="text-sm font-medium text-gray-600 hidden md:block">市交通局</span>
+            </div>
+        </div>
+        
+        <!-- 第二行：子页面导航 -->
+        <div class="flex justify-center space-x-12 h-12">
+            <button id="nav-home" onclick="switchMain('home')" class="border-blue-600 text-blue-600 inline-flex items-center px-2 border-b-2 text-base font-semibold transition-colors">
+                门户首页
+            </button>
+            <button id="nav-personal" onclick="switchMain('personal')" class="border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-2 border-b-2 text-base font-semibold transition-colors">
+                个人中心
+            </button>
+        </div>
+    </nav>
+
+    <!-- 全局操作提示弹窗 (Toast) -->
+    <div id="toast" class="fixed top-28 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none">
+        <i data-lucide="check-circle" class="w-5 h-5 text-green-400" id="toast-icon"></i>
+        <span id="toast-message">操作成功</span>
+    </div>
+
+    <!-- ==================== 页面内容容器 ==================== -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- ++++++++++++++++++++ 1. 门户首页区域 (含主页和资源详情页) ++++++++++++++++++++ -->
+        <div id="view-home-container" class="view-block">
+            
+            <!-- 1.1 门户首页主视图 -->
+            <div id="subview-home-main" class="view-block space-y-12">
+                <!-- 核心：数据服务展示 -->
+                <div>
+                    <div class="flex justify-between items-end mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                                <i data-lucide="shopping-bag" class="w-6 h-6 mr-2 text-blue-600"></i> 数据服务超市
+                            </h2>
+                            <p class="text-gray-500 mt-1 text-sm">标准化时空数据与API能力，即开即用</p>
+                        </div>
+                        <select class="border border-gray-300 rounded text-sm py-1.5 px-3 bg-white outline-none">
+                            <option>全部分类</option>
+                            <option>低空经济</option>
+                            <option>交通出行</option>
+                            <option>城市治理</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- 资源卡片 1 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all group">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors"><i data-lucide="map" class="w-6 h-6 text-blue-600"></i></div>
+                                <span class="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">低空数据</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">高精度低空飞行时空路网</h3>
+                            <p class="text-sm text-gray-500 line-clamp-2 mb-4 h-10">覆盖全市范围的无人机低空飞行航迹、3D高程模型数据及禁飞区API接口。</p>
+                            <div class="flex justify-between items-center text-sm mb-5">
+                                <span class="text-red-500 font-bold text-lg">¥ 5,000<span class="text-sm font-normal">/月</span></span>
+                            </div>
+                            <button onclick="goToResourceDetail('RES-001', '高精度低空飞行时空路网')" class="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+                                查看详情并获取
+                            </button>
+                        </div>
+                        
+                        <!-- 资源卡片 2 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all group">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors"><i data-lucide="bus" class="w-6 h-6 text-green-600"></i></div>
+                                <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">交通API</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">全市公交运行实时OD接口</h3>
+                            <p class="text-sm text-gray-500 line-clamp-2 mb-4 h-10">实时获取全网公交车辆位置、满载率及乘客起讫点(OD)流向分析。</p>
+                            <div class="flex justify-between items-center text-sm mb-5">
+                                <span class="text-red-500 font-bold text-lg">¥ 8,000<span class="text-sm font-normal">/月</span></span>
+                            </div>
+                            <button onclick="goToResourceDetail('RES-002', '全市公交运行实时OD接口')" class="w-full bg-white border border-blue-600 text-blue-600 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors">
+                                查看详情并获取
+                            </button>
+                        </div>
+
+                        <!-- 资源卡片 3 -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all group">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-purple-50 rounded-lg group-hover:bg-purple-100 transition-colors"><i data-lucide="car" class="w-6 h-6 text-purple-600"></i></div>
+                                <span class="px-2 py-1 rounded text-xs font-medium bg-purple-100 text-purple-800">高速公路</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">高速ETC通行溯源记录</h3>
+                            <p class="text-sm text-gray-500 line-clamp-2 mb-4 h-10">基于全省高速公路收费站ETC流水数据，提供车辆通行轨迹提取与还原服务。</p>
+                            <div class="flex justify-between items-center text-sm mb-5">
+                                <span class="text-orange-500 font-bold text-lg">¥ 0.15<span class="text-sm font-normal">/次</span></span>
+                            </div>
+                            <button onclick="goToResourceDetail('RES-003', '高速ETC通行溯源记录')" class="w-full bg-white border border-blue-600 text-blue-600 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors">
+                                查看详情并获取
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-gray-200">
+
+                <!-- 次要：底座运行统计 (沉底展示) -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 mr-2 text-gray-500"></i> 底座运行概览
+                    </h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white rounded-lg border border-gray-200 p-5 border-l-4 border-l-blue-500 shadow-sm">
+                            <p class="text-xs text-gray-500 font-medium uppercase">数据资源总量</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-2">245 <span class="text-sm font-normal text-gray-500">个</span></p>
+                        </div>
+                        <div class="bg-white rounded-lg border border-gray-200 p-5 border-l-4 border-l-green-500 shadow-sm">
+                            <p class="text-xs text-gray-500 font-medium uppercase">API服务接口</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-2">128 <span class="text-sm font-normal text-gray-500">个</span></p>
+                        </div>
+                        <div class="bg-white rounded-lg border border-gray-200 p-5 border-l-4 border-l-orange-500 shadow-sm">
+                            <p class="text-xs text-gray-500 font-medium uppercase">累计调用次数</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-2">893.4 <span class="text-sm font-normal text-gray-500">万次</span></p>
+                        </div>
+                        <div class="bg-white rounded-lg border border-gray-200 p-5 border-l-4 border-l-purple-500 shadow-sm">
+                            <p class="text-xs text-gray-500 font-medium uppercase">入驻需求方</p>
+                            <p class="text-2xl font-bold text-gray-900 mt-2">34 <span class="text-sm font-normal text-gray-500">家</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.2 二级页面：资源详情页 (从首页卡片进入) -->
+            <div id="subview-resource-detail" class="view-hidden space-y-6">
+                <!-- 返回按钮 -->
+                <button onclick="backToHomeMain()" class="text-sm font-medium text-gray-500 hover:text-blue-600 transition-colors flex items-center">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> 返回门户首页
+                </button>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <!-- 头部及操作区 -->
+                    <div class="p-6 md:p-8 border-b border-gray-200 bg-gradient-to-r from-blue-50/50 to-white flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-3 mb-2">
+                                <span class="px-2 py-1 rounded text-xs font-mono bg-gray-800 text-white" id="detail-id">RES-xxx</span>
+                                <span class="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800 flex items-center"><i data-lucide="activity" class="w-3 h-3 mr-1"></i> 服务运行良好</span>
+                            </div>
+                            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2" id="detail-title">资源名称加载中...</h2>
+                            <p class="text-gray-600 text-sm md:text-base">提供标准的 Restful API 接口与离线数据包，支持高并发调用，SLA保障 99.9%。包含完善的鉴权机制与调用追踪。</p>
+                        </div>
+                        
+                        <!-- 动态状态与操作面板 (核心交互) -->
+                        <div class="w-full md:w-auto bg-white p-4 rounded-lg border border-gray-200 shadow-sm text-center md:text-right min-w-[280px]">
+                            <!-- 未订阅状态面板 -->
+                            <div id="state-unsubscribed" class="view-block">
+                                <div class="text-sm text-gray-500 mb-1">当前资费标准</div>
+                                <div class="text-2xl font-bold text-red-500 mb-4">¥ 5,000 <span class="text-sm text-gray-500 font-normal">/月</span></div>
+                                <div class="flex flex-col space-y-2">
+                                    <button onclick="handleResourceAction('subscribe')" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-blue-700 flex justify-center items-center">
+                                        <i data-lucide="shopping-cart" class="w-4 h-4 mr-2"></i> 立即订阅
+                                    </button>
+                                    <button onclick="handleResourceAction('trial')" class="w-full px-4 py-2 border border-blue-600 text-blue-600 rounded-md shadow-sm text-sm font-medium hover:bg-blue-50">
+                                        申请免费试用 (7天)
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- 已订阅状态面板 -->
+                            <div id="state-subscribed" class="view-hidden">
+                                <div class="bg-green-50 border border-green-200 text-green-700 rounded-md p-3 mb-4 flex flex-col items-center">
+                                    <div class="flex items-center font-bold mb-1"><i data-lucide="check-circle-2" class="w-5 h-5 mr-1"></i> 已获得调用权限</div>
+                                    <div class="text-xs">服务到期时间: 2026-12-31</div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="handleResourceAction('renew')" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-blue-700">
+                                        续订服务
+                                    </button>
+                                    <button onclick="handleResourceAction('terminate')" class="flex-1 px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 rounded-md shadow-sm text-sm font-medium">
+                                        终止服务
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 详情参数说明 -->
+                    <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-8 bg-white">
+                        <div class="md:col-span-2 space-y-6">
+                            <h3 class="text-lg font-bold border-l-4 border-blue-600 pl-3">接口规范与字典说明</h3>
+                            <div class="bg-gray-50 p-4 rounded border border-gray-200 font-mono text-sm text-gray-700">
+                                <p class="text-green-600 font-bold mb-2">GET /api/v1/spatial/data_query</p>
+                                <p class="text-gray-500">// Header 参数</p>
+                                <p class="mb-2">Authorization: Bearer <span class="text-blue-500">{your_token}</span></p>
+                                <p class="text-gray-500">// Query 参数</p>
+                                <p>polygon: String (WKT格式的地理围栏) <span class="text-red-400 text-xs">*必填</span></p>
+                                <p>time_start: Timestamp</p>
+                                <p>time_end: Timestamp</p>
+                            </div>
+                            
+                            <h3 class="text-lg font-bold border-l-4 border-blue-600 pl-3 mt-8">调用示例</h3>
+                            <div class="bg-[#1e1e1e] p-4 rounded-lg font-mono text-sm text-[#d4d4d4] overflow-x-auto shadow-inner">
+                                <code>
+<span class="text-[#569cd6]">import</span> requests<br><br>
+url = <span class="text-[#ce9178]">"https://api.base.gov/api/v1/spatial/data_query"</span><br>
+headers = {<span class="text-[#ce9178]">"Authorization"</span>: <span class="text-[#ce9178]">"Bearer YOUR_TOKEN_HERE"</span>}<br>
+params = {<span class="text-[#ce9178]">"polygon"</span>: <span class="text-[#ce9178]">"POLYGON((116.4 39.9, ...))"</span>}<br><br>
+response = requests.get(url, headers=headers, params=params)<br>
+<span class="text-[#4ec9b0]">print</span>(response.json())
+                                </code>
+                            </div>
+                        </div>
+                        
+                        <!-- 侧边信息 -->
+                        <div class="space-y-6">
+                            <div class="bg-gray-50 rounded-lg p-5 border border-gray-200">
+                                <h3 class="font-bold text-gray-900 mb-4 border-b border-gray-200 pb-2">数据提供方信息</h3>
+                                <ul class="space-y-3 text-sm">
+                                    <li class="flex flex-col"><span class="text-gray-500 text-xs mb-1">权属单位</span> <span class="font-medium">市交通运输局信息中心</span></li>
+                                    <li class="flex flex-col"><span class="text-gray-500 text-xs mb-1">数据更新频率</span> <span class="font-medium">实时流 (延迟 < 3s)</span></li>
+                                    <li class="flex flex-col"><span class="text-gray-500 text-xs mb-1">共享属性</span> <span class="font-medium">有条件共享</span></li>
+                                    <li class="flex flex-col"><span class="text-gray-500 text-xs mb-1">数据安全分级</span> <span class="text-orange-600 font-bold bg-orange-100 px-2 py-0.5 rounded w-max">L3 级敏感数据</span></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-blue-50 rounded-lg p-5 border border-blue-100">
+                                <h3 class="font-bold text-blue-900 mb-2">需要技术支持？</h3>
+                                <p class="text-xs text-blue-700 mb-3">如果在接口对接过程中遇到网络隔离或鉴权问题，请提交工单。</p>
+                                <button class="text-sm text-blue-600 bg-white border border-blue-200 px-3 py-1.5 rounded hover:bg-gray-50">联系平台运维</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ++++++++++++++++++++ 2. 个人中心区域 (Personal Center) ++++++++++++++++++++ -->
+        <div id="view-personal-container" class="view-hidden flex-col md:flex-row gap-6">
+            <!-- 左侧导航菜单 -->
+            <div class="w-full md:w-56 flex-shrink-0">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden sticky top-24">
+                    <div class="p-5 bg-gradient-to-b from-gray-50 to-white border-b border-gray-200 text-center">
+                        <div class="h-16 w-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-2xl font-bold border-2 border-white shadow-sm mb-2">政</div>
+                        <div class="font-bold text-gray-900">市交通局</div>
+                        <div class="text-xs text-gray-500 mt-1">账号: JTJ_admin</div>
+                    </div>
+                    <nav class="p-3 space-y-1">
+                        <!-- 需求中心模块 -->
+                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider px-2 pt-3 pb-2">需求中心</div>
+                        <button onclick="switchPersonalMenu('demand-form')" id="menu-demand-form" class="personal-menu-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-blue-50 text-blue-700 transition-colors">
+                            <i data-lucide="file-edit" class="w-4 h-4 mr-3"></i> 在线填报需求
+                        </button>
+                        <button onclick="switchPersonalMenu('demand-list')" id="menu-demand-list" class="personal-menu-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <i data-lucide="list" class="w-4 h-4 mr-3"></i> 我的需求清单
+                        </button>
+                        
+                        <!-- 订单中心模块 -->
+                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider px-2 pt-5 pb-2 border-t border-gray-100 mt-2">订单中心</div>
+                        <button onclick="switchPersonalMenu('order-list')" id="menu-order-list" class="personal-menu-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 mr-3"></i> 我的订阅记录
+                        </button>
+                        <button onclick="switchPersonalMenu('order-stats')" id="menu-order-stats" class="personal-menu-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+                            <i data-lucide="pie-chart" class="w-4 h-4 mr-3"></i> 调用消耗统计
+                        </button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- 右侧内容动态展示区 -->
+            <div class="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 min-h-[600px]">
+                
+                <!-- 2.1 需求中心 - 在线填报 -->
+                <div id="panel-demand-form" class="view-block">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center pb-4 border-b border-gray-100">
+                        <i data-lucide="file-edit" class="w-5 h-5 mr-2 text-blue-600"></i> 在线提交新需求
+                    </h2>
+                    <form class="space-y-6 max-w-2xl" onsubmit="event.preventDefault(); showToast('需求提交成功，已进入平台审核池！'); switchPersonalMenu('demand-list');">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">需求资源名称 <span class="text-red-500">*</span></label>
+                            <input type="text" required class="w-full border border-gray-300 rounded-md p-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" placeholder="请简要概括需要的时空数据或接口">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">期望交付形式</label>
+                                <select class="w-full border border-gray-300 rounded-md p-2.5 text-sm outline-none bg-white">
+                                    <option>API 在线接口</option>
+                                    <option>离线数据文件包</option>
+                                    <option>算法模型在线部署</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">期望完成时间</label>
+                                <input type="date" class="w-full border border-gray-300 rounded-md p-2.5 text-sm outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">详细应用场景与业务价值 <span class="text-red-500">*</span></label>
+                            <textarea rows="5" required class="w-full border border-gray-300 rounded-md p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all" placeholder="请详细描述：1. 该需求用于支撑什么具体业务？ 2. 预期达到的效果？ 3. 期望包含的具体数据字段有哪些？（详细的描述有助于防范重复建设并加快审核进度）"></textarea>
+                        </div>
+                        <div class="pt-2">
+                            <button type="submit" class="bg-blue-600 text-white px-8 py-2.5 rounded-md text-sm font-medium hover:bg-blue-700 shadow-sm transition-colors">
+                                提交平台审核
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- 2.2 需求中心 - 需求清单 -->
+                <div id="panel-demand-list" class="view-hidden">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center pb-4 border-b border-gray-100">
+                        <i data-lucide="list" class="w-5 h-5 mr-2 text-blue-600"></i> 我的需求清单
+                    </h2>
+                    <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">需求编号</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">需求名称</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">提交日期</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">当前状态</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">REQ-2026-081</td>
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">共享单车潮汐调度分析数据</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2026-06-15</td>
+                                    <td class="px-6 py-4 whitespace-nowrap"><span class="bg-yellow-100 text-yellow-800 px-2.5 py-0.5 rounded-full text-xs font-medium">需求评估中</span></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-blue-600 hover:text-blue-900">查看进度</button></td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500">REQ-2026-042</td>
+                                    <td class="px-6 py-4 text-sm font-medium text-gray-900">网约车重点区域电子围栏</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2026-05-10</td>
+                                    <td class="px-6 py-4 whitespace-nowrap"><span class="bg-green-100 text-green-800 px-2.5 py-0.5 rounded-full text-xs font-medium">已开发上线</span></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"><button class="text-gray-400 cursor-not-allowed">归档</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2.3 订单中心 - 订阅记录 -->
+                <div id="panel-order-list" class="view-hidden">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center pb-4 border-b border-gray-100">
+                        <i data-lucide="shopping-bag" class="w-5 h-5 mr-2 text-blue-600"></i> 已订阅资源
+                    </h2>
+                    <div class="space-y-4">
+                        <!-- 订单 1 -->
+                        <div class="border border-gray-200 rounded-xl p-5 hover:border-blue-300 transition-colors shadow-sm">
+                            <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-blue-50 p-3 rounded-lg text-blue-600 mt-1"><i data-lucide="key" class="w-6 h-6"></i></div>
+                                    <div>
+                                        <div class="flex items-center mb-1">
+                                            <h4 class="text-lg font-bold text-gray-900 mr-2">全市公交运行实时OD接口</h4>
+                                            <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">API接口</span>
+                                        </div>
+                                        <p class="text-sm text-gray-500">订单编号: SUB-202606-001 <span class="mx-2">|</span> 计费模式: 包月不限次</p>
+                                        <p class="text-xs text-gray-400 mt-1">有效期至: 2026-12-31</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row md:flex-col items-center md:items-end justify-between">
+                                    <span class="text-sm font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full mb-2"><i data-lucide="check" class="w-3 h-3 inline mr-1"></i>调用生效中</span>
+                                    <button class="text-sm text-blue-600 hover:underline font-medium">查看 Token 密钥</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 订单 2 -->
+                        <div class="border border-gray-200 rounded-xl p-5 bg-gray-50 opacity-75">
+                            <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-gray-200 p-3 rounded-lg text-gray-500 mt-1"><i data-lucide="database" class="w-6 h-6"></i></div>
+                                    <div>
+                                        <div class="flex items-center mb-1">
+                                            <h4 class="text-lg font-bold text-gray-600 mr-2">高德静态路网基础包</h4>
+                                            <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded text-xs">离线文件</span>
+                                        </div>
+                                        <p class="text-sm text-gray-500">订单编号: SUB-202512-089 <span class="mx-2">|</span> 计费模式: 免费获取</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-row md:flex-col items-center md:items-end justify-between">
+                                    <span class="text-sm font-medium text-gray-500 mb-2">已完结 / 文件已下载</span>
+                                    <button class="text-sm text-gray-500 hover:text-blue-600 underline">重新订阅</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2.4 订单中心 - 消耗统计 -->
+                <div id="panel-order-stats" class="view-hidden">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center pb-4 border-b border-gray-100">
+                        <i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-blue-600"></i> 调用消耗统计
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-6 text-white shadow-md">
+                            <p class="text-blue-100 text-sm mb-1">本月累计调用次数</p>
+                            <h3 class="text-4xl font-bold font-mono">1,245,600 <span class="text-base font-normal opacity-80">次</span></h3>
+                            <p class="text-xs text-blue-200 mt-4"><i data-lucide="trending-up" class="w-3 h-3 inline mr-1"></i> 较上月增长 12.5%</p>
+                        </div>
+                        <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex flex-col justify-center">
+                            <p class="text-gray-500 text-sm mb-1">本月预计产生费用</p>
+                            <h3 class="text-4xl font-bold text-gray-900">¥ 15,800.<span class="text-2xl text-gray-500">00</span></h3>
+                            <button class="mt-4 w-max text-sm text-blue-600 hover:text-blue-800 font-medium border-b border-blue-600">下载对账单 PDF</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                        <h4 class="font-bold text-gray-700 mb-4">本月接口消耗排行 TOP 3</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600">1. 全市公交运行实时OD接口</span>
+                                <span class="font-mono font-medium">850,200 次</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-4"><div class="bg-blue-600 h-2 rounded-full" style="width: 70%"></div></div>
+                            
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600">2. 高速ETC通行溯源记录</span>
+                                <span class="font-mono font-medium">254,000 次</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-4"><div class="bg-blue-400 h-2 rounded-full" style="width: 20%"></div></div>
+                            
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-600">3. 高精度低空飞行数据 API</span>
+                                <span class="font-mono font-medium">141,400 次</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-4"><div class="bg-blue-300 h-2 rounded-full" style="width: 10%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== JavaScript 交互逻辑 ==================== -->
+    <script>
+        // 初始化 Lucide 图标
+        lucide.createIcons();
+
+        // 统一消息弹窗
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toast-icon');
+            document.getElementById('toast-message').innerText = message;
+            
+            icon.setAttribute('data-lucide', type === 'success' ? 'check-circle' : 'alert-circle');
+            icon.className = type === 'success' ? 'w-5 h-5 text-green-400' : 'w-5 h-5 text-orange-400';
+            lucide.createIcons();
+            
+            toast.className = "fixed top-28 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 transition-all duration-300 opacity-100 pointer-events-auto";
+            setTimeout(() => {
+                toast.className = "fixed top-28 left-1/2 transform -translate-x-1/2 z-50 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 transition-all duration-300 opacity-0 pointer-events-none";
+            }, 2500);
+        }
+
+        // ==================== 1. 主导航切换逻辑 ====================
+        function switchMain(target) {
+            // 设置顶部导航栏的高亮状态
+            const navHome = document.getElementById('nav-home');
+            const navPersonal = document.getElementById('nav-personal');
+
+            if (target === 'home') {
+                navHome.className = "border-blue-600 text-blue-600 inline-flex items-center px-2 border-b-2 text-base font-semibold transition-colors";
+                navPersonal.className = "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-2 border-b-2 text-base font-semibold transition-colors";
+                
+                // 显示首页大容器，隐藏个人中心
+                document.getElementById('view-home-container').classList.replace('view-hidden', 'view-block');
+                document.getElementById('view-personal-container').classList.replace('view-flex', 'view-hidden');
+                
+                // 默认回到首页的卡片列表，隐藏资源详情
+                backToHomeMain();
+                
+            } else if (target === 'personal') {
+                navPersonal.className = "border-blue-600 text-blue-600 inline-flex items-center px-2 border-b-2 text-base font-semibold transition-colors";
+                navHome.className = "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-2 border-b-2 text-base font-semibold transition-colors";
+                
+                // 隐藏首页大容器，显示个人中心
+                document.getElementById('view-home-container').classList.replace('view-block', 'view-hidden');
+                document.getElementById('view-personal-container').classList.replace('view-hidden', 'view-flex');
+            }
+        }
+
+        // ==================== 2. 资源详情页交互逻辑 ====================
+        // 点击首页资源卡片进入详情
+        function goToResourceDetail(id, title) {
+            // 填充详情数据
+            document.getElementById('detail-id').innerText = id;
+            document.getElementById('detail-title').innerText = title;
+            
+            // 切换内部视图：隐藏主卡片列表，显示详情页
+            document.getElementById('subview-home-main').classList.replace('view-block', 'view-hidden');
+            document.getElementById('subview-resource-detail').classList.replace('view-hidden', 'view-block');
+            
+            // 每次进入详情页，重置按钮状态为"未订阅"
+            document.getElementById('state-unsubscribed').classList.replace('view-hidden', 'view-block');
+            document.getElementById('state-subscribed').classList.replace('view-block', 'view-hidden');
+            
+            // 取消顶部导航的高亮（因为处于二级页）
+            document.getElementById('nav-home').className = "border-transparent text-gray-500 hover:text-gray-900 hover:border-gray-300 inline-flex items-center px-2 border-b-2 text-base font-semibold transition-colors";
+        }
+
+        // 从资源详情页返回首页卡片列表
+        function backToHomeMain() {
+            document.getElementById('subview-resource-detail').classList.replace('view-block', 'view-hidden');
+            document.getElementById('subview-home-main').classList.replace('view-hidden', 'view-block');
+            
+            // 恢复首页导航的高亮
+            document.getElementById('nav-home').className = "border-blue-600 text-blue-600 inline-flex items-center px-2 border-b-2 text-base font-semibold transition-colors";
+        }
+
+        // 详情页操作：试用、订阅、续订、终止
+        function handleResourceAction(action) {
+            const unsubBox = document.getElementById('state-unsubscribed');
+            const subBox = document.getElementById('state-subscribed');
+
+            if (action === 'trial') {
+                showToast('已成功领取 7 天免费试用特权！');
+                unsubBox.classList.replace('view-block', 'view-hidden');
+                subBox.classList.replace('view-hidden', 'view-block');
+            } else if (action === 'subscribe') {
+                showToast('订阅成功，系统已自动发放调用凭证！');
+                unsubBox.classList.replace('view-block', 'view-hidden');
+                subBox.classList.replace('view-hidden', 'view-block');
+            } else if (action === 'terminate') {
+                if (confirm('确定要终止调用权限吗？终止后您的业务请求将被拦截。')) {
+                    showToast('服务已终止，系统停止计费', 'warning');
+                    subBox.classList.replace('view-block', 'view-hidden');
+                    unsubBox.classList.replace('view-hidden', 'view-block');
+                }
+            } else if (action === 'renew') {
+                showToast('续订成功，服务时长已延长！');
+            }
+        }
+
+        // ==================== 3. 个人中心内部侧边栏切换 ====================
+        function switchPersonalMenu(targetPanel) {
+            // 重置左侧所有按钮样式
+            const buttons = document.querySelectorAll('.personal-menu-btn');
+            buttons.forEach(btn => {
+                btn.className = 'personal-menu-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors';
+            });
+            
+            // 高亮当前点击的菜单
+            document.getElementById(`menu-${targetPanel}`).className = 'personal-menu-btn w-full flex items-center px-3 py-2 text-sm font-medium rounded-md bg-blue-50 text-blue-700 transition-colors';
+
+            // 切换右侧内容面板
+            const panels = ['panel-demand-form', 'panel-demand-list', 'panel-order-list', 'panel-order-stats'];
+            panels.forEach(p => {
+                const el = document.getElementById(p);
+                if (p === `panel-${targetPanel}`) {
+                    el.classList.replace('view-hidden', 'view-block');
+                } else {
+                    el.classList.replace('view-block', 'view-hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
