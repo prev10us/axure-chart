@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>道路运行数据预览</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family:"Microsoft YaHei",sans-serif;
+    background:#f3f6fa;
+}
+
+.container{
+    width:100%;
+    height:430px;
+    display:flex;
+    background:#fff;
+}
+
+.map-panel{
+    flex:7;
+}
+
+#map{
+    width:100%;
+    height:430px;
+}
+
+.info-panel{
+    flex:3;
+    border-left:1px solid #e5e7eb;
+    padding:20px;
+    box-sizing:border-box;
+    background:#fff;
+}
+
+.title{
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:20px;
+    color:#1f2937;
+}
+
+.card{
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    padding:18px;
+    margin-bottom:15px;
+}
+
+.label{
+    font-size:14px;
+    color:#64748b;
+}
+
+.value{
+    margin-top:8px;
+    font-size:28px;
+    color:#2563eb;
+    font-weight:bold;
+}
+
+.desc{
+    margin-top:20px;
+    line-height:24px;
+    font-size:14px;
+    color:#666;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="map-panel">
+        <div id="map"></div>
+    </div>
+
+    <div class="info-panel">
+
+        <div class="title" id="roadName">
+            辽河路
+        </div>
+
+        <div class="card">
+            <div class="label">延误指数</div>
+            <div class="value" id="delay">1.72</div>
+        </div>
+
+        <div class="card">
+            <div class="label">道路饱和度</div>
+            <div class="value" id="saturation">0.81</div>
+        </div>
+
+        <div class="card">
+            <div class="label">平均速度</div>
+            <div class="value" id="speed">31km/h</div>
+        </div>
+
+        <div class="card">
+            <div class="label">30分钟流量预测</div>
+            <div class="value" id="forecast">2980辆</div>
+        </div>
+
+        <div class="desc">
+            点击地图中的道路查看实时运行状态与预测指标。
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const roads = [
+
+{
+    name:"辽河路",
+    color:"#ef4444",
+    coords:[
+        [31.860,119.950],
+        [31.860,119.995]
+    ],
+    delay:"1.72",
+    saturation:"0.81",
+    speed:"31km/h",
+    forecast:"2980辆"
+},
+
+{
+    name:"通江路",
+    color:"#f59e0b",
+    coords:[
+        [31.820,119.973],
+        [31.875,119.973]
+    ],
+    delay:"2.16",
+    saturation:"0.92",
+    speed:"24km/h",
+    forecast:"3650辆"
+},
+
+{
+    name:"龙城大道",
+    color:"#22c55e",
+    coords:[
+        [31.842,119.940],
+        [31.842,120.005]
+    ],
+    delay:"1.28",
+    saturation:"0.65",
+    speed:"42km/h",
+    forecast:"2120辆"
+}
+
+];
+
+const map = L.map('map').setView(
+    [31.845,119.973],
+    13
+);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+    maxZoom:18
+}).addTo(map);
+
+function updateRoad(data){
+
+    document.getElementById(
+        "roadName"
+    ).innerText=data.name;
+
+    document.getElementById(
+        "delay"
+    ).innerText=data.delay;
+
+    document.getElementById(
+        "saturation"
+    ).innerText=data.saturation;
+
+    document.getElementById(
+        "speed"
+    ).innerText=data.speed;
+
+    document.getElementById(
+        "forecast"
+    ).innerText=data.forecast;
+}
+
+roads.forEach(road=>{
+
+    const line = L.polyline(
+        road.coords,
+        {
+            color:road.color,
+            weight:8,
+            opacity:0.8
+        }
+    ).addTo(map);
+
+    line.bindTooltip(road.name);
+
+    line.on("click",function(){
+
+        updateRoad(road);
+
+    });
+
+});
+
+updateRoad(roads[0]);
+
+</script>
+
+</body>
+</html>
