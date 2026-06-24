@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>交通运行态势预览</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+
+html,body{
+    width:100%;
+    height:100%;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    font-family:"Microsoft YaHei";
+}
+
+.container{
+    width:100%;
+    height:100vh;
+    display:flex;
+}
+
+#map{
+    flex:2;
+}
+
+.panel{
+    flex:1;
+    background:#fff;
+    border-left:1px solid #e5e7eb;
+    padding:25px;
+    box-sizing:border-box;
+}
+
+.title{
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:20px;
+    color:#333;
+}
+
+.card{
+    margin-bottom:15px;
+    padding:15px;
+    border-radius:8px;
+    border:1px solid #eee;
+}
+
+.label{
+    color:#666;
+    font-size:14px;
+}
+
+.value{
+    margin-top:8px;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.orange{
+    background:#fff7ed;
+    color:#ea580c;
+}
+
+.blue{
+    background:#eff6ff;
+    color:#2563eb;
+}
+
+.green{
+    background:#f0fdf4;
+    color:#16a34a;
+}
+
+.purple{
+    background:#faf5ff;
+    color:#9333ea;
+}
+
+.empty{
+    color:#999;
+    text-align:center;
+    margin-top:100px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div id="map"></div>
+
+    <div class="panel">
+
+        <div class="title" id="intersectionName">
+            请点击交叉口
+        </div>
+
+        <div id="emptyState" class="empty">
+            点击地图红色节点<br><br>
+            查看交通运行指标
+        </div>
+
+        <div id="dataPanel" style="display:none;">
+
+            <div class="card orange">
+                <div class="label">延误指数</div>
+                <div class="value" id="delay">--</div>
+            </div>
+
+            <div class="card blue">
+                <div class="label">平均排队长度</div>
+                <div class="value" id="queue">--</div>
+            </div>
+
+            <div class="card green">
+                <div class="label">平均速度</div>
+                <div class="value" id="speed">--</div>
+            </div>
+
+            <div class="card purple">
+                <div class="label">平均停车速度</div>
+                <div class="value" id="stopSpeed">--</div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const map = L.map('map').setView([39.908,116.397],13);
+
+L.tileLayer(
+'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+{
+    attribution:''
+}).addTo(map);
+
+const intersections = [
+
+{
+    lat:39.908,
+    lng:116.397,
+    name:'长安街－南长街路口',
+    delay:'3.2',
+    queue:'150m',
+    speed:'18 km/h',
+    stop:'5 km/h'
+},
+
+{
+    lat:39.895,
+    lng:116.450,
+    name:'广渠门内大街交叉口',
+    delay:'4.5',
+    queue:'280m',
+    speed:'12 km/h',
+    stop:'2 km/h'
+},
+
+{
+    lat:39.925,
+    lng:116.350,
+    name:'阜成门外大街',
+    delay:'2.1',
+    queue:'80m',
+    speed:'35 km/h',
+    stop:'10 km/h'
+}
+
+];
+
+const icon = L.divIcon({
+    html:
+    "<div style='width:18px;height:18px;background:#ef4444;border-radius:50%;border:3px solid white;box-shadow:0 0 8px rgba(0,0,0,0.4);'></div>",
+    className:"",
+    iconSize:[18,18],
+    iconAnchor:[9,9]
+});
+
+intersections.forEach(item=>{
+
+    const marker = L.marker(
+        [item.lat,item.lng],
+        {icon:icon}
+    ).addTo(map);
+
+    marker.on("click",function(){
+
+        document.getElementById("intersectionName").innerHTML =
+            item.name;
+
+        document.getElementById("delay").innerHTML =
+            item.delay;
+
+        document.getElementById("queue").innerHTML =
+            item.queue;
+
+        document.getElementById("speed").innerHTML =
+            item.speed;
+
+        document.getElementById("stopSpeed").innerHTML =
+            item.stop;
+
+        document.getElementById("emptyState").style.display =
+            "none";
+
+        document.getElementById("dataPanel").style.display =
+            "block";
+
+    });
+
+});
+
+setTimeout(function(){
+    map.invalidateSize();
+},500);
+
+</script>
+
+</body>
+</html>
