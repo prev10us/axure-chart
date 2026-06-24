@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>路口运行数据预览</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family:"Microsoft YaHei",sans-serif;
+    background:#f3f6fa;
+}
+
+.container{
+    width:100%;
+    height:430px;
+    display:flex;
+    background:#fff;
+}
+
+.map-panel{
+    flex:7;
+    position:relative;
+}
+
+#map{
+    width:100%;
+    height:430px;
+}
+
+.info-panel{
+    flex:3;
+    background:#ffffff;
+    border-left:1px solid #e5e7eb;
+    padding:20px;
+    box-sizing:border-box;
+}
+
+.title{
+    font-size:20px;
+    font-weight:600;
+    color:#1f2937;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#f8fafc;
+    border-radius:10px;
+    padding:18px;
+    margin-bottom:15px;
+    border:1px solid #e5e7eb;
+}
+
+.label{
+    color:#64748b;
+    font-size:14px;
+}
+
+.value{
+    margin-top:8px;
+    font-size:28px;
+    font-weight:bold;
+    color:#2563eb;
+}
+
+.desc{
+    margin-top:20px;
+    color:#666;
+    line-height:24px;
+    font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="map-panel">
+        <div id="map"></div>
+    </div>
+
+    <div class="info-panel">
+
+        <div class="title" id="intersectionName">
+            通江路－辽河路
+        </div>
+
+        <div class="card">
+            <div class="label">延误指数</div>
+            <div class="value" id="delay">1.62</div>
+        </div>
+
+        <div class="card">
+            <div class="label">平均排队长度</div>
+            <div class="value" id="queue">42m</div>
+        </div>
+
+        <div class="card">
+            <div class="label">平均速度</div>
+            <div class="value" id="speed">28km/h</div>
+        </div>
+
+        <div class="card">
+            <div class="label">平均停车次数</div>
+            <div class="value" id="stop">1.4次</div>
+        </div>
+
+        <div class="desc">
+            点击地图中的交叉口查看实时运行指标。
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const intersections = [
+
+{
+    name:"通江路－辽河路",
+    lat:31.858,
+    lng:119.974,
+    delay:"1.62",
+    queue:"42m",
+    speed:"28km/h",
+    stop:"1.4次"
+},
+
+{
+    name:"龙城大道－通江路",
+    lat:31.844,
+    lng:119.973,
+    delay:"2.11",
+    queue:"68m",
+    speed:"22km/h",
+    stop:"2.3次"
+},
+
+{
+    name:"河海路－晋陵路",
+    lat:31.820,
+    lng:119.981,
+    delay:"1.28",
+    queue:"31m",
+    speed:"35km/h",
+    stop:"0.9次"
+}
+
+];
+
+const map = L.map('map').setView(
+    [31.844,119.976],
+    13
+);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+    maxZoom:18
+}).addTo(map);
+
+function updateData(data){
+
+    document.getElementById(
+        "intersectionName"
+    ).innerText=data.name;
+
+    document.getElementById(
+        "delay"
+    ).innerText=data.delay;
+
+    document.getElementById(
+        "queue"
+    ).innerText=data.queue;
+
+    document.getElementById(
+        "speed"
+    ).innerText=data.speed;
+
+    document.getElementById(
+        "stop"
+    ).innerText=data.stop;
+}
+
+intersections.forEach(item=>{
+
+    const marker=L.marker(
+        [item.lat,item.lng]
+    ).addTo(map);
+
+    marker.bindTooltip(item.name);
+
+    marker.on("click",function(){
+
+        updateData(item);
+
+    });
+
+});
+
+updateData(intersections[0]);
+
+</script>
+
+</body>
+</html>
