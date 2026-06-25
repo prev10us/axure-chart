@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>低空飞行轨迹</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+
+html,body{
+    margin:0;
+    padding:0;
+    overflow:hidden;
+    background:#f8fafc;
+}
+
+.view-hidden{
+    display:none !important;
+}
+
+.view-block{
+    display:block !important;
+}
+
+.leaflet-interactive{
+    transition:all .2s;
+}
+
+@keyframes rotate-propeller {
+    0%{
+        transform:rotate(0deg);
+    }
+    100%{
+        transform:rotate(360deg);
+    }
+}
+
+.propeller-spin{
+    animation:rotate-propeller 0.4s infinite linear;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
+
+    <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 font-bold text-gray-800 flex items-center justify-between">
+
+        <span class="flex items-center">
+            <i data-lucide="plane"
+               class="w-5 h-5 mr-2 text-purple-600"></i>
+
+            数据能力交互预览：低空飞行轨迹
+        </span>
+
+        <span class="text-xs text-gray-400 font-normal">
+            点击无人机图标查看飞行指标
+        </span>
+
+    </div>
+
+    <div class="flex flex-col md:flex-row h-[420px]">
+
+        <!-- 地图 -->
+
+        <div id="preview-map-drone"
+             class="w-full md:w-2/3 h-full">
+        </div>
+
+        <!-- 指标 -->
+
+        <div class="w-full md:w-1/3 bg-white p-6 border-l border-gray-200 flex flex-col justify-center">
+
+            <h4 id="drone-name"
+                class="font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center">
+
+                <i data-lucide="navigation"
+                   class="w-4 h-4 mr-1 text-gray-400"></i>
+
+                请选择无人机
+
+            </h4>
+
+            <div id="drone-data"
+                 class="view-hidden space-y-4">
+
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded border border-gray-200">
+                    <span class="text-gray-600 text-sm">
+                        当前状态
+                    </span>
+
+                    <span id="drone-status"
+                          class="font-bold text-xs px-2 py-0.5 rounded">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-purple-50 p-3 rounded border border-purple-100">
+                    <span class="text-gray-600 text-sm">
+                        飞行高度
+                    </span>
+
+                    <span id="drone-height"
+                          class="font-bold text-purple-600 font-mono text-xl">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-blue-50 p-3 rounded border border-blue-100">
+                    <span class="text-gray-600 text-sm">
+                        飞行速度
+                    </span>
+
+                    <span id="drone-speed"
+                          class="font-bold text-blue-600 font-mono text-xl">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-emerald-50 p-3 rounded border border-emerald-100">
+                    <span class="text-gray-600 text-sm">
+                        累计飞行时长
+                    </span>
+
+                    <span id="drone-duration"
+                          class="font-bold text-emerald-600 font-mono text-xl">
+                        --
+                    </span>
+                </div>
+
+            </div>
+
+            <div id="drone-empty"
+                 class="flex flex-col items-center justify-center text-gray-400 py-12">
+
+                <div class="bg-gray-50 p-4 rounded-full mb-3">
+                    <i data-lucide="send"
+                       class="w-8 h-8 text-purple-500">
+                    </i>
+                </div>
+
+                <p class="text-sm text-center">
+                    点击左侧地图中的<br>
+                    <span class="text-purple-600 font-bold">
+                        无人机图标
+                    </span>
+                    查看飞行数据
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+lucide.createIcons();
+
+const mapDrone = L.map(
+    'preview-map-drone',
+    {
+        zoomControl:false,
+        attributionControl:false
+    }
+).setView(
+    [31.815,119.974],
+    13
+);
+
+L.tileLayer(
+'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+).addTo(mapDrone);
+
+const drones = [
+
+{
+    name:'无人机1（安防巡检）',
+    lat:31.831,
+    lng:119.974,
+    height:'120 米',
+    speed:'14.5 米/秒',
+    duration:'45 分钟',
+    status:'自动巡航中',
+    statusClass:'bg-green-100 text-green-800 border-green-200',
+    path:[
+        [31.831,119.965],
+        [31.831,119.995],
+        [31.820,119.995],
+        [31.820,119.965],
+        [31.831,119.965]
+    ]
+},
+
+{
+    name:'无人机2（环境监测）',
+    lat:31.802,
+    lng:119.985,
+    height:'95 米',
+    speed:'11.2 米/秒',
+    duration:'32 分钟',
+    status:'尾气高空监测',
+    statusClass:'bg-purple-100 text-purple-800 border-purple-200',
+    path:[
+        [31.802,119.985],
+        [31.815,119.960],
+        [31.790,119.950],
+        [31.802,119.985]
+    ]
+},
+
+{
+    name:'无人机3（高精测绘）',
+    lat:31.815,
+    lng:119.950,
+    height:'150 米',
+    speed:'8.5 米/秒',
+    duration:'115 分钟',
+    status:'倾斜摄影测绘',
+    statusClass:'bg-blue-100 text-blue-800 border-blue-200',
+    path:[
+        [31.815,119.950],
+        [31.825,119.950],
+        [31.825,119.960],
+        [31.815,119.960],
+        [31.815,119.950]
+    ]
+}
+
+];
+
+drones.forEach(drone=>{
+
+    L.polyline(
+        drone.path,
+        {
+            color:'#a855f7',
+            weight:3,
+            dashArray:'5,8',
+            opacity:0.6
+        }
+    ).addTo(mapDrone);
+
+    const icon = L.divIcon({
+
+        className:'',
+
+        html:`
+        <div class="relative flex items-center justify-center"
+             style="width:36px;height:36px;">
+
+            <div class="absolute w-4 h-4 bg-purple-600 rounded-full border-2 border-white shadow-md z-10"></div>
+
+            <div class="propeller-spin absolute w-8 h-1 bg-purple-400 opacity-80"></div>
+
+            <div class="propeller-spin absolute w-1 h-8 bg-purple-400 opacity-80"></div>
+
+        </div>
+        `,
+
+        iconSize:[36,36],
+        iconAnchor:[18,18]
+
+    });
+
+    const marker =
+        L.marker(
+            [drone.lat,drone.lng],
+            {icon}
+        ).addTo(mapDrone);
+
+    marker.on('click',()=>{
+
+        document.getElementById('drone-name').innerHTML =
+            '<i data-lucide="send" class="w-4 h-4 mr-1 text-purple-600"></i> ' +
+            drone.name;
+
+        const status =
+            document.getElementById('drone-status');
+
+        status.innerText =
+            drone.status;
+
+        status.className =
+            'font-bold text-xs px-2 py-0.5 rounded border ' +
+            drone.statusClass;
+
+        document.getElementById('drone-height').innerText =
+            drone.height;
+
+        document.getElementById('drone-speed').innerText =
+            drone.speed;
+
+        document.getElementById('drone-duration').innerText =
+            drone.duration;
+
+        document.getElementById('drone-empty').classList.add('view-hidden');
+        document.getElementById('drone-data').classList.remove('view-hidden');
+
+        lucide.createIcons();
+
+    });
+
+});
+
+</script>
+
+</body>
+</html>
