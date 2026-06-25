@@ -2,9 +2,12 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>路口运行数据预览</title>
+<title>路口实时监控</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -13,111 +16,173 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 
+html,
 body{
     margin:0;
     padding:0;
-    font-family:"Microsoft YaHei",sans-serif;
-    background:#f3f6fa;
+    overflow:hidden;
 }
 
-.container{
-    width:100%;
-    height:430px;
-    display:flex;
-    background:#fff;
+.view-hidden{
+    display:none !important;
 }
 
-.map-panel{
-    flex:7;
-    position:relative;
+.view-block{
+    display:block !important;
 }
 
-#map{
-    width:100%;
-    height:430px;
+.view-flex{
+    display:flex !important;
 }
 
-.info-panel{
-    flex:3;
-    background:#ffffff;
-    border-left:1px solid #e5e7eb;
-    padding:20px;
-    box-sizing:border-box;
+::-webkit-scrollbar{
+    width:6px;
 }
 
-.title{
-    font-size:20px;
-    font-weight:600;
-    color:#1f2937;
-    margin-bottom:20px;
-}
-
-.card{
-    background:#f8fafc;
+::-webkit-scrollbar-thumb{
+    background:#cbd5e1;
     border-radius:10px;
-    padding:18px;
-    margin-bottom:15px;
-    border:1px solid #e5e7eb;
 }
 
-.label{
-    color:#64748b;
-    font-size:14px;
+.leaflet-interactive{
+    cursor:pointer !important;
 }
 
-.value{
-    margin-top:8px;
-    font-size:28px;
-    font-weight:bold;
-    color:#2563eb;
+@keyframes pulse {
+    0%{
+        transform:scale(1);
+        opacity:1;
+    }
+    50%{
+        transform:scale(1.3);
+        opacity:0.8;
+    }
+    100%{
+        transform:scale(1);
+        opacity:1;
+    }
 }
 
-.desc{
-    margin-top:20px;
-    color:#666;
-    line-height:24px;
-    font-size:14px;
+.animate-pulse-fast{
+    animation:pulse 1.5s infinite ease-in-out;
 }
 
 </style>
+
 </head>
 
-<body>
+<body class="bg-gray-50">
 
-<div class="container">
+<div class="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
 
-    <div class="map-panel">
-        <div id="map"></div>
+    <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 font-bold text-gray-800 flex items-center justify-between">
+
+        <span class="flex items-center">
+            <i data-lucide="map"
+               class="w-5 h-5 mr-2 text-blue-600"></i>
+            数据能力交互预览：路口实时监控
+        </span>
+
+        <span class="text-xs text-gray-400 font-normal">
+            点击红圈选择路口，查看右侧核心指标
+        </span>
+
     </div>
 
-    <div class="info-panel">
+    <div class="flex flex-col md:flex-row h-[420px]">
 
-        <div class="title" id="intersectionName">
-            通江路－辽河路
+        <!-- 地图 -->
+
+        <div id="preview-map-intersection"
+             class="w-full md:w-2/3 h-full z-0 relative">
         </div>
 
-        <div class="card">
-            <div class="label">延误指数</div>
-            <div class="value" id="delay">1.62</div>
-        </div>
+        <!-- 右侧指标 -->
 
-        <div class="card">
-            <div class="label">平均排队长度</div>
-            <div class="value" id="queue">42m</div>
-        </div>
+        <div class="w-full md:w-1/3 bg-white p-6 border-t md:border-t-0 md:border-l border-gray-200 flex flex-col z-10">
 
-        <div class="card">
-            <div class="label">平均速度</div>
-            <div class="value" id="speed">28km/h</div>
-        </div>
+            <h4 class="font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100 flex items-center"
+                id="intersection-name">
 
-        <div class="card">
-            <div class="label">平均停车次数</div>
-            <div class="value" id="stop">1.4次</div>
-        </div>
+                <i data-lucide="map-pin"
+                   class="w-4 h-4 mr-1 text-gray-400">
+                </i>
 
-        <div class="desc">
-            点击地图中的交叉口查看实时运行指标。
+                请选择交叉口
+
+            </h4>
+
+            <div id="intersection-data"
+                 class="view-hidden space-y-4 flex-1">
+
+                <div class="flex justify-between items-center bg-orange-50/50 p-3 rounded border border-orange-100">
+                    <span class="text-gray-600 text-sm">
+                        延误指数
+                    </span>
+
+                    <span class="font-bold text-orange-600 font-mono text-xl"
+                          id="data-delay">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-blue-50/50 p-3 rounded border border-blue-100">
+                    <span class="text-gray-600 text-sm">
+                        平均排队长度
+                    </span>
+
+                    <span class="font-bold text-blue-600 font-mono text-xl"
+                          id="data-queue">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-green-50/50 p-3 rounded border border-green-100">
+                    <span class="text-gray-600 text-sm">
+                        平均速度
+                    </span>
+
+                    <span class="font-bold text-green-600 font-mono text-xl"
+                          id="data-speed">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-purple-50/50 p-3 rounded border border-purple-100">
+                    <span class="text-gray-600 text-sm">
+                        平均停车速度
+                    </span>
+
+                    <span class="font-bold text-purple-600 font-mono text-xl"
+                          id="data-stop-speed">
+                        --
+                    </span>
+                </div>
+
+            </div>
+
+            <div id="intersection-empty"
+                 class="view-flex flex-1 flex-col items-center justify-center text-gray-400">
+
+                <div class="bg-gray-50 p-4 rounded-full mb-3">
+
+                    <i data-lucide="mouse-pointer-click"
+                       class="w-8 h-8 opacity-60 text-blue-500">
+                    </i>
+
+                </div>
+
+                <p class="text-sm text-center">
+                    点击左侧地图的
+                    <span class="text-red-500 font-bold">
+                        路口标志
+                    </span>
+                    <br>
+                    获取该节点高精监测指标
+                </p>
+
+            </div>
+
         </div>
 
     </div>
@@ -126,91 +191,123 @@ body{
 
 <script>
 
-const intersections = [
+lucide.createIcons();
 
-{
-    name:"通江路－辽河路",
-    lat:31.858,
-    lng:119.974,
-    delay:"1.62",
-    queue:"42m",
-    speed:"28km/h",
-    stop:"1.4次"
-},
-
-{
-    name:"龙城大道－通江路",
-    lat:31.844,
-    lng:119.973,
-    delay:"2.11",
-    queue:"68m",
-    speed:"22km/h",
-    stop:"2.3次"
-},
-
-{
-    name:"河海路－晋陵路",
-    lat:31.820,
-    lng:119.981,
-    delay:"1.28",
-    queue:"31m",
-    speed:"35km/h",
-    stop:"0.9次"
-}
-
-];
-
-const map = L.map('map').setView(
-    [31.844,119.976],
+const map = L.map(
+    'preview-map-intersection',
+    {
+        zoomControl:false,
+        attributionControl:false
+    }
+).setView(
+    [31.815,119.974],
     13
 );
 
 L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+).addTo(map);
+
+const intersections = [
+
 {
-    maxZoom:18
-}).addTo(map);
+    lat:31.831,
+    lng:119.974,
+    name:'通江南路与辽河路口',
+    delay:'1.45',
+    queue:'45m',
+    speed:'38.5 km/h',
+    stopSpeed:'8.2 km/h'
+},
 
-function updateData(data){
+{
+    lat:31.812,
+    lng:119.985,
+    name:'通江南路与黄河路交叉口',
+    delay:'2.84',
+    queue:'190m',
+    speed:'21.0 km/h',
+    stopSpeed:'3.1 km/h'
+},
 
-    document.getElementById(
-        "intersectionName"
-    ).innerText=data.name;
-
-    document.getElementById(
-        "delay"
-    ).innerText=data.delay;
-
-    document.getElementById(
-        "queue"
-    ).innerText=data.queue;
-
-    document.getElementById(
-        "speed"
-    ).innerText=data.speed;
-
-    document.getElementById(
-        "stop"
-    ).innerText=data.stop;
+{
+    lat:31.801,
+    lng:119.960,
+    name:'汉江路与龙江路交叉口',
+    delay:'4.12',
+    queue:'320m',
+    speed:'11.5 km/h',
+    stopSpeed:'1.4 km/h'
 }
+
+];
+
+const markerIcon = L.divIcon({
+
+    className:'custom-marker',
+
+    html:
+    "<div class='animate-pulse-fast' style='background:#ef4444;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 0 8px rgba(239,68,68,0.6);'></div>",
+
+    iconSize:[16,16],
+
+    iconAnchor:[8,8]
+
+});
 
 intersections.forEach(item=>{
 
-    const marker=L.marker(
-        [item.lat,item.lng]
+    const marker = L.marker(
+        [item.lat,item.lng],
+        {
+            icon:markerIcon
+        }
     ).addTo(map);
 
-    marker.bindTooltip(item.name);
+    marker.on('click',()=>{
 
-    marker.on("click",function(){
+        document.getElementById(
+            'intersection-name'
+        ).innerHTML =
+        `<i data-lucide="map-pin"
+            class="w-4 h-4 mr-1 text-blue-600"></i>
+            ${item.name}`;
 
-        updateData(item);
+        document.getElementById(
+            'data-delay'
+        ).innerText=item.delay;
+
+        document.getElementById(
+            'data-queue'
+        ).innerText=item.queue;
+
+        document.getElementById(
+            'data-speed'
+        ).innerText=item.speed;
+
+        document.getElementById(
+            'data-stop-speed'
+        ).innerText=item.stopSpeed;
+
+        document.getElementById(
+            'intersection-empty'
+        ).classList.replace(
+            'view-flex',
+            'view-hidden'
+        );
+
+        document.getElementById(
+            'intersection-data'
+        ).classList.replace(
+            'view-hidden',
+            'view-block'
+        );
+
+        lucide.createIcons();
 
     });
 
 });
-
-updateData(intersections[0]);
 
 </script>
 
