@@ -35,8 +35,20 @@
 
             const chart = echarts.init(document.getElementById('chart-container'));
             chart.setOption({
+                // 左上角增加图名
+                title: {
+                    text: '数据传输时间轴',
+                    textStyle: {
+                        color: '#000000',
+                        fontSize: 16,
+                        fontWeight: 'bold'
+                    },
+                    left: '2%',
+                    top: '2%'
+                },
                 tooltip: { trigger: 'axis' },
-                grid: { left: '2%', right: '4%', bottom: '5%', top: '15%', containLabel: true },
+                // 调整 top 间距，留出标题空间
+                grid: { left: '2%', right: '4%', bottom: '5%', top: '25%', containLabel: true },
                 xAxis: { 
                     type: 'category', 
                     boundaryGap: false, 
@@ -45,10 +57,15 @@
                 },
                 yAxis: { 
                     type: 'value', 
-                    name: '数量 (条)',
+                    name: '数量/条',
                     min: 0,
                     max: 200,
-                    nameTextStyle: textStyle,
+                    interval: 50, // 统一间距为50
+                    nameTextStyle: {
+                        color: '#000000',
+                        align: 'left',         // 设置左对齐
+                        padding: [0, 0, 8, -28] // 微调边距，使其与图名完美左对齐
+                    },
                     axisLabel: textStyle,
                     splitLine: { lineStyle: { color: '#f3f4f6' } }
                 },
