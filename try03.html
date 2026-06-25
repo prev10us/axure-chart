@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>公交运行数据预览</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family:"Microsoft YaHei",sans-serif;
+    background:#f3f6fa;
+}
+
+.container{
+    width:100%;
+    height:430px;
+    display:flex;
+    background:#fff;
+}
+
+.map-panel{
+    flex:7;
+    position:relative;
+    background:#f8fafc;
+}
+
+.info-panel{
+    flex:3;
+    border-left:1px solid #e5e7eb;
+    padding:20px;
+    box-sizing:border-box;
+    background:#fff;
+}
+
+.title{
+    font-size:20px;
+    font-weight:600;
+    color:#1f2937;
+    margin-bottom:20px;
+}
+
+.card{
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:10px;
+    padding:18px;
+    margin-bottom:15px;
+}
+
+.label{
+    color:#64748b;
+    font-size:14px;
+}
+
+.value{
+    margin-top:8px;
+    font-size:28px;
+    font-weight:bold;
+    color:#2563eb;
+}
+
+.route-btn{
+    position:absolute;
+    left:20px;
+    top:20px;
+    z-index:999;
+}
+
+.route-btn button{
+    padding:8px 14px;
+    margin-right:8px;
+    border:none;
+    border-radius:6px;
+    background:#2563eb;
+    color:#fff;
+    cursor:pointer;
+}
+
+svg{
+    width:100%;
+    height:100%;
+}
+
+.station{
+    fill:#fff;
+    stroke:#2563eb;
+    stroke-width:3;
+}
+
+.line{
+    stroke-width:8;
+    fill:none;
+}
+
+.desc{
+    margin-top:20px;
+    font-size:14px;
+    line-height:24px;
+    color:#666;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="map-panel">
+
+        <div class="route-btn">
+            <button onclick="changeBus('B1')">B1路</button>
+            <button onclick="changeBus('B2')">B2路</button>
+            <button onclick="changeBus('B12')">B12路</button>
+        </div>
+
+        <svg viewBox="0 0 700 430">
+
+            <polyline id="line"
+                class="line"
+                points="100,220 250,220 400,180 550,220"
+                stroke="#2563eb"/>
+
+            <circle class="station" cx="100" cy="220" r="10"/>
+            <circle class="station" cx="250" cy="220" r="10"/>
+            <circle class="station" cx="400" cy="180" r="10"/>
+            <circle class="station" cx="550" cy="220" r="10"/>
+
+            <text x="80" y="250">总站</text>
+            <text x="225" y="250">A站</text>
+            <text x="385" y="160">B站</text>
+            <text x="530" y="250">终点站</text>
+
+        </svg>
+
+    </div>
+
+    <div class="info-panel">
+
+        <div class="title" id="lineName">
+            B1路
+        </div>
+
+        <div class="card">
+            <div class="label">首班时间</div>
+            <div class="value" id="first">06:00</div>
+        </div>
+
+        <div class="card">
+            <div class="label">末班时间</div>
+            <div class="value" id="last">22:30</div>
+        </div>
+
+        <div class="card">
+            <div class="label">在线车辆</div>
+            <div class="value" id="busCount">36辆</div>
+        </div>
+
+        <div class="card">
+            <div class="label">准点率</div>
+            <div class="value" id="rate">96%</div>
+        </div>
+
+        <div class="desc">
+            点击线路查看公交运营情况与实时运行指标。
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const busData = {
+
+B1:{
+    name:"B1路",
+    first:"06:00",
+    last:"22:30",
+    count:"36辆",
+    rate:"96%",
+    color:"#2563eb"
+},
+
+B2:{
+    name:"B2路",
+    first:"05:50",
+    last:"22:00",
+    count:"28辆",
+    rate:"94%",
+    color:"#16a34a"
+},
+
+B12:{
+    name:"B12路",
+    first:"06:20",
+    last:"21:40",
+    count:"22辆",
+    rate:"92%",
+    color:"#dc2626"
+}
+
+};
+
+function changeBus(name){
+
+    const bus = busData[name];
+
+    document.getElementById(
+        "lineName"
+    ).innerText = bus.name;
+
+    document.getElementById(
+        "first"
+    ).innerText = bus.first;
+
+    document.getElementById(
+        "last"
+    ).innerText = bus.last;
+
+    document.getElementById(
+        "busCount"
+    ).innerText = bus.count;
+
+    document.getElementById(
+        "rate"
+    ).innerText = bus.rate;
+
+    document.getElementById(
+        "line"
+    ).setAttribute(
+        "stroke",
+        bus.color
+    );
+}
+
+</script>
+
+</body>
+</html>
