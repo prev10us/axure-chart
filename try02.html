@@ -1,10 +1,14 @@
+```html
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>道路运行数据预览</title>
+<title>道路拥堵热力图</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -13,110 +17,173 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 
-body{
+html,body{
     margin:0;
     padding:0;
-    font-family:"Microsoft YaHei",sans-serif;
-    background:#f3f6fa;
+    overflow:hidden;
 }
 
-.container{
-    width:100%;
-    height:430px;
-    display:flex;
-    background:#fff;
+.view-hidden{
+    display:none !important;
 }
 
-.map-panel{
-    flex:7;
+.view-block{
+    display:block !important;
 }
 
-#map{
-    width:100%;
-    height:430px;
+.view-flex{
+    display:flex !important;
 }
 
-.info-panel{
-    flex:3;
-    border-left:1px solid #e5e7eb;
-    padding:20px;
-    box-sizing:border-box;
-    background:#fff;
+::-webkit-scrollbar{
+    width:6px;
+    height:6px;
 }
 
-.title{
-    font-size:20px;
-    font-weight:600;
-    margin-bottom:20px;
-    color:#1f2937;
-}
-
-.card{
-    background:#f8fafc;
-    border:1px solid #e5e7eb;
+::-webkit-scrollbar-thumb{
+    background:#cbd5e1;
     border-radius:10px;
-    padding:18px;
-    margin-bottom:15px;
 }
 
-.label{
-    font-size:14px;
-    color:#64748b;
-}
-
-.value{
-    margin-top:8px;
-    font-size:28px;
-    color:#2563eb;
-    font-weight:bold;
-}
-
-.desc{
-    margin-top:20px;
-    line-height:24px;
-    font-size:14px;
-    color:#666;
+.leaflet-interactive{
+    transition:stroke-width .15s ease-in-out,
+               stroke .15s ease-in-out;
+    cursor:pointer !important;
 }
 
 </style>
+
 </head>
 
-<body>
+<body class="bg-gray-50">
 
-<div class="container">
+<div class="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
 
-    <div class="map-panel">
-        <div id="map"></div>
+    <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 font-bold text-gray-800 flex items-center justify-between">
+
+        <span class="flex items-center">
+            <i data-lucide="route"
+               class="w-5 h-5 mr-2 text-red-600"></i>
+            数据能力交互预览：道路拥堵热力图
+        </span>
+
+        <div class="flex items-center space-x-3 text-xs">
+            <span class="flex items-center">
+                <span class="w-2.5 h-2.5 bg-red-500 rounded-full mr-1"></span>
+                拥堵
+            </span>
+
+            <span class="flex items-center">
+                <span class="w-2.5 h-2.5 bg-yellow-500 rounded-full mr-1"></span>
+                缓行
+            </span>
+
+            <span class="flex items-center">
+                <span class="w-2.5 h-2.5 bg-green-500 rounded-full mr-1"></span>
+                畅通
+            </span>
+        </div>
+
     </div>
 
-    <div class="info-panel">
+    <div class="flex flex-col md:flex-row h-[400px]">
 
-        <div class="title" id="roadName">
-            辽河路
+        <div id="preview-map-road"
+             class="w-full md:w-2/3 h-full z-0 relative">
         </div>
 
-        <div class="card">
-            <div class="label">延误指数</div>
-            <div class="value" id="delay">1.72</div>
-        </div>
+        <div class="w-full md:w-1/3 bg-white p-6 border-t md:border-t-0 md:border-l border-gray-200 flex flex-col z-10">
 
-        <div class="card">
-            <div class="label">道路饱和度</div>
-            <div class="value" id="saturation">0.81</div>
-        </div>
+            <h4 class="font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100 flex items-center"
+                id="road-name">
 
-        <div class="card">
-            <div class="label">平均速度</div>
-            <div class="value" id="speed">31km/h</div>
-        </div>
+                <i data-lucide="git-commit"
+                   class="w-4 h-4 mr-1 text-gray-400"></i>
 
-        <div class="card">
-            <div class="label">30分钟流量预测</div>
-            <div class="value" id="forecast">2980辆</div>
-        </div>
+                请选择道路网段
 
-        <div class="desc">
-            点击地图中的道路查看实时运行状态与预测指标。
+            </h4>
+
+            <div id="road-data"
+                 class="view-hidden space-y-4 flex-1">
+
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded border border-gray-200">
+                    <span class="text-gray-600 text-sm">
+                        拥堵等级
+                    </span>
+
+                    <span class="font-bold px-2.5 py-0.5 rounded text-sm"
+                          id="road-status-tag">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-orange-50/50 p-3 rounded border border-orange-100">
+                    <span class="text-gray-600 text-sm">
+                        延误指数
+                    </span>
+
+                    <span class="font-bold text-orange-600 font-mono text-xl"
+                          id="road-delay">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-red-50/50 p-3 rounded border border-red-100">
+                    <span class="text-gray-600 text-sm">
+                        路段饱和度
+                    </span>
+
+                    <span class="font-bold text-red-600 font-mono text-xl"
+                          id="road-saturation">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-green-50/50 p-3 rounded border border-green-100">
+                    <span class="text-gray-600 text-sm">
+                        平均车速
+                    </span>
+
+                    <span class="font-bold text-green-600 font-mono text-xl"
+                          id="road-speed">
+                        --
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center bg-purple-50/50 p-3 rounded border border-purple-100">
+                    <span class="text-gray-600 text-sm">
+                        高峰流量预测
+                    </span>
+
+                    <span class="font-bold text-purple-600 font-mono text-xl"
+                          id="road-forecast">
+                        --
+                    </span>
+                </div>
+
+            </div>
+
+            <div id="road-empty"
+                 class="view-flex flex-1 flex-col items-center justify-center text-gray-400">
+
+                <div class="bg-gray-50 p-4 rounded-full mb-3">
+                    <i data-lucide="gesture-hand"
+                       class="w-8 h-8 opacity-60 text-red-500">
+                    </i>
+                </div>
+
+                <p class="text-sm text-center">
+                    在左侧地图中点击<br>
+                    任意一条
+                    <span class="font-bold text-gray-700">
+                        彩色热力路网
+                    </span>
+                    进行指标分析
+                </p>
+
+            </div>
+
         </div>
 
     </div>
@@ -125,107 +192,164 @@ body{
 
 <script>
 
-const roads = [
+lucide.createIcons();
 
-{
-    name:"辽河路",
-    color:"#ef4444",
-    coords:[
-        [31.860,119.950],
-        [31.860,119.995]
-    ],
-    delay:"1.72",
-    saturation:"0.81",
-    speed:"31km/h",
-    forecast:"2980辆"
-},
-
-{
-    name:"通江路",
-    color:"#f59e0b",
-    coords:[
-        [31.820,119.973],
-        [31.875,119.973]
-    ],
-    delay:"2.16",
-    saturation:"0.92",
-    speed:"24km/h",
-    forecast:"3650辆"
-},
-
-{
-    name:"龙城大道",
-    color:"#22c55e",
-    coords:[
-        [31.842,119.940],
-        [31.842,120.005]
-    ],
-    delay:"1.28",
-    saturation:"0.65",
-    speed:"42km/h",
-    forecast:"2120辆"
-}
-
-];
-
-const map = L.map('map').setView(
-    [31.845,119.973],
+const mapRoad = L.map(
+    'preview-map-road',
+    {
+        zoomControl:false,
+        attributionControl:false
+    }
+).setView(
+    [31.815,119.974],
     13
 );
 
 L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+).addTo(mapRoad);
+
+const roadSegments = [
+
 {
-    maxZoom:18
-}).addTo(map);
+    name:'辽河路 (通江中路-晋陵北路)',
+    coords:[
+        [31.831,119.965],
+        [31.831,119.995]
+    ],
+    color:'#ef4444',
+    status:'严重拥堵',
+    statusClass:'bg-red-100 text-red-800 border-red-200',
+    delay:'4.85',
+    saturation:'96.2%',
+    speed:'12.4 km/h',
+    forecast:'2200 辆/小时'
+},
 
-function updateRoad(data){
+{
+    name:'通江中路 (黄河路-汉江路段)',
+    coords:[
+        [31.825,119.974],
+        [31.795,119.974]
+    ],
+    color:'#eab308',
+    status:'路网缓行',
+    statusClass:'bg-yellow-100 text-yellow-800 border-yellow-200',
+    delay:'2.31',
+    saturation:'71.5%',
+    speed:'28.0 km/h',
+    forecast:'1550 辆/小时'
+},
 
-    document.getElementById(
-        "roadName"
-    ).innerText=data.name;
-
-    document.getElementById(
-        "delay"
-    ).innerText=data.delay;
-
-    document.getElementById(
-        "saturation"
-    ).innerText=data.saturation;
-
-    document.getElementById(
-        "speed"
-    ).innerText=data.speed;
-
-    document.getElementById(
-        "forecast"
-    ).innerText=data.forecast;
+{
+    name:'黄河路 (龙环路段-华山路段)',
+    coords:[
+        [31.812,119.950],
+        [31.812,119.998]
+    ],
+    color:'#22c55e',
+    status:'道路畅通',
+    statusClass:'bg-green-100 text-green-800 border-green-200',
+    delay:'1.08',
+    saturation:'34.8%',
+    speed:'58.2 km/h',
+    forecast:'920 辆/小时'
 }
 
-roads.forEach(road=>{
+];
 
-    const line = L.polyline(
+roadSegments.forEach(road=>{
+
+    const polyline = L.polyline(
         road.coords,
         {
             color:road.color,
             weight:8,
-            opacity:0.8
+            opacity:0.85,
+            lineJoin:'round'
         }
-    ).addTo(map);
+    ).addTo(mapRoad);
 
-    line.bindTooltip(road.name);
+    polyline.on('mouseover',function(){
 
-    line.on("click",function(){
+        this.setStyle({
+            weight:12,
+            opacity:1
+        });
 
-        updateRoad(road);
+    });
+
+    polyline.on('mouseout',function(){
+
+        this.setStyle({
+            weight:8,
+            opacity:0.85
+        });
+
+    });
+
+    polyline.on('click',()=>{
+
+        document.getElementById(
+            'road-name'
+        ).innerHTML =
+        `<i data-lucide="git-commit"
+            class="w-4 h-4 mr-1 text-blue-600"></i>
+            ${road.name}`;
+
+        const tag =
+            document.getElementById(
+                'road-status-tag'
+            );
+
+        tag.innerText =
+            road.status;
+
+        tag.className =
+            `font-bold px-2.5 py-0.5 rounded text-xs border ${road.statusClass}`;
+
+        document.getElementById(
+            'road-delay'
+        ).innerText =
+            road.delay;
+
+        document.getElementById(
+            'road-saturation'
+        ).innerText =
+            road.saturation;
+
+        document.getElementById(
+            'road-speed'
+        ).innerText =
+            road.speed;
+
+        document.getElementById(
+            'road-forecast'
+        ).innerText =
+            road.forecast;
+
+        document.getElementById(
+            'road-empty'
+        ).classList.replace(
+            'view-flex',
+            'view-hidden'
+        );
+
+        document.getElementById(
+            'road-data'
+        ).classList.replace(
+            'view-hidden',
+            'view-block'
+        );
+
+        lucide.createIcons();
 
     });
 
 });
 
-updateRoad(roads[0]);
-
 </script>
 
 </body>
 </html>
+```

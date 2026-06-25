@@ -2,171 +2,237 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>公交运行数据预览</title>
+<title>公交线路图</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
 
-body{
+html,body{
     margin:0;
     padding:0;
-    font-family:"Microsoft YaHei",sans-serif;
-    background:#f3f6fa;
+    overflow:hidden;
 }
 
-.container{
-    width:100%;
-    height:430px;
-    display:flex;
-    background:#fff;
+@keyframes pulse {
+    0%{
+        transform:scale(1);
+        opacity:1;
+    }
+    50%{
+        transform:scale(1.3);
+        opacity:0.8;
+    }
+    100%{
+        transform:scale(1);
+        opacity:1;
+    }
 }
 
-.map-panel{
-    flex:7;
-    position:relative;
-    background:#f8fafc;
-}
-
-.info-panel{
-    flex:3;
-    border-left:1px solid #e5e7eb;
-    padding:20px;
-    box-sizing:border-box;
-    background:#fff;
-}
-
-.title{
-    font-size:20px;
-    font-weight:600;
-    color:#1f2937;
-    margin-bottom:20px;
-}
-
-.card{
-    background:#f8fafc;
-    border:1px solid #e5e7eb;
-    border-radius:10px;
-    padding:18px;
-    margin-bottom:15px;
-}
-
-.label{
-    color:#64748b;
-    font-size:14px;
-}
-
-.value{
-    margin-top:8px;
-    font-size:28px;
-    font-weight:bold;
-    color:#2563eb;
-}
-
-.route-btn{
-    position:absolute;
-    left:20px;
-    top:20px;
-    z-index:999;
-}
-
-.route-btn button{
-    padding:8px 14px;
-    margin-right:8px;
-    border:none;
-    border-radius:6px;
-    background:#2563eb;
-    color:#fff;
-    cursor:pointer;
-}
-
-svg{
-    width:100%;
-    height:100%;
-}
-
-.station{
-    fill:#fff;
-    stroke:#2563eb;
-    stroke-width:3;
-}
-
-.line{
-    stroke-width:8;
-    fill:none;
-}
-
-.desc{
-    margin-top:20px;
-    font-size:14px;
-    line-height:24px;
-    color:#666;
+.animate-pulse-fast{
+    animation:pulse 1.5s infinite ease-in-out;
 }
 
 </style>
+
 </head>
 
-<body>
+<body class="bg-gray-50">
 
-<div class="container">
+<div class="border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
 
-    <div class="map-panel">
+    <div class="bg-gray-50 px-5 py-3 border-b border-gray-200 font-bold text-gray-800 flex items-center justify-between">
 
-        <div class="route-btn">
-            <button onclick="changeBus('B1')">B1路</button>
-            <button onclick="changeBus('B2')">B2路</button>
-            <button onclick="changeBus('B12')">B12路</button>
-        </div>
+        <span class="flex items-center">
+            <i data-lucide="bus"
+               class="w-5 h-5 mr-2 text-green-600">
+            </i>
+            数据能力交互预览：公交线路图
+        </span>
 
-        <svg viewBox="0 0 700 430">
-
-            <polyline id="line"
-                class="line"
-                points="100,220 250,220 400,180 550,220"
-                stroke="#2563eb"/>
-
-            <circle class="station" cx="100" cy="220" r="10"/>
-            <circle class="station" cx="250" cy="220" r="10"/>
-            <circle class="station" cx="400" cy="180" r="10"/>
-            <circle class="station" cx="550" cy="220" r="10"/>
-
-            <text x="80" y="250">总站</text>
-            <text x="225" y="250">A站</text>
-            <text x="385" y="160">B站</text>
-            <text x="530" y="250">终点站</text>
-
-        </svg>
+        <span class="text-xs text-gray-400 font-normal">
+            点击下方线路进行实时指标切换
+        </span>
 
     </div>
 
-    <div class="info-panel">
+    <div class="flex flex-col md:flex-row h-[420px]">
 
-        <div class="title" id="lineName">
-            B1路
+        <!-- 左侧线路 -->
+
+        <div class="w-full md:w-2/3 h-full bg-slate-900 flex flex-col justify-center px-8 relative overflow-hidden">
+
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(51,65,85,0.4),rgba(15,23,42,0.9))]"></div>
+
+            <!-- TAB -->
+
+            <div class="absolute top-4 left-6 flex space-x-3 z-10">
+
+                <button onclick="selectBusLine('B1')"
+                        id="btn-bus-B1"
+                        class="px-4 py-1.5 rounded-lg font-bold text-xs bg-blue-600 text-white shadow-md transition-all">
+                    B1路（主线）
+                </button>
+
+                <button onclick="selectBusLine('B2')"
+                        id="btn-bus-B2"
+                        class="px-4 py-1.5 rounded-lg font-bold text-xs bg-slate-800 text-gray-400 hover:text-white transition-all">
+                    B2路（区间）
+                </button>
+
+            </div>
+
+            <!-- 公交线路 -->
+
+            <div class="relative w-full py-12 flex items-center justify-between">
+
+                <div class="absolute left-4 right-4 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500 rounded"></div>
+
+                <!-- 小车 -->
+
+                <div id="bus-car-indicator"
+                     class="absolute top-4 transform -translate-x-1/2 transition-all duration-1000 ease-in-out flex flex-col items-center"
+                     style="left:38%;">
+
+                    <div class="bg-yellow-400 text-slate-950 p-1.5 rounded-full shadow-lg border-2 border-white animate-pulse-fast">
+
+                        <i data-lucide="bus"
+                           class="w-5 h-5"></i>
+
+                    </div>
+
+                    <span class="text-[10px] text-yellow-300 font-bold mt-1 bg-slate-950/80 px-1.5 py-0.5 rounded border border-yellow-500/30">
+                        B1_102号车
+                    </span>
+
+                </div>
+
+                <!-- 起点 -->
+
+                <div class="flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-emerald-500 border-4 border-slate-950 flex items-center justify-center font-bold text-white text-xs">
+                        起
+                    </div>
+
+                    <span id="bus-stop-0"
+                          class="text-xs text-white font-bold mt-3">
+                        常州北站总站
+                    </span>
+                </div>
+
+                <!-- A -->
+
+                <div class="flex flex-col items-center relative z-10">
+                    <div class="w-6 h-6 rounded-full bg-white border-4 border-teal-500"></div>
+
+                    <span id="bus-stop-1"
+                          class="text-xs text-slate-300 mt-4">
+                        辽河路A站
+                    </span>
+                </div>
+
+                <!-- B -->
+
+                <div class="flex flex-col items-center relative z-10">
+                    <div class="w-6 h-6 rounded-full bg-white border-4 border-teal-500"></div>
+
+                    <span id="bus-stop-2"
+                          class="text-xs text-slate-300 mt-4">
+                        黄河路B站
+                    </span>
+                </div>
+
+                <!-- 终点 -->
+
+                <div class="flex flex-col items-center relative z-10">
+                    <div class="w-8 h-8 rounded-full bg-blue-500 border-4 border-slate-950 flex items-center justify-center font-bold text-white text-xs">
+                        终
+                    </div>
+
+                    <span id="bus-stop-3"
+                          class="text-xs text-white font-bold mt-3">
+                        恐龙城C站
+                    </span>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="card">
-            <div class="label">首班时间</div>
-            <div class="value" id="first">06:00</div>
-        </div>
+        <!-- 右侧指标 -->
 
-        <div class="card">
-            <div class="label">末班时间</div>
-            <div class="value" id="last">22:30</div>
-        </div>
+        <div class="w-full md:w-1/3 bg-white p-6 border-t md:border-t-0 md:border-l border-gray-200 flex flex-col justify-center">
 
-        <div class="card">
-            <div class="label">在线车辆</div>
-            <div class="value" id="busCount">36辆</div>
-        </div>
+            <h4 class="font-bold text-gray-800 mb-6 pb-2 border-b border-gray-100 flex items-center">
 
-        <div class="card">
-            <div class="label">准点率</div>
-            <div class="value" id="rate">96%</div>
-        </div>
+                <i data-lucide="route"
+                   class="w-5 h-5 mr-1 text-green-500">
+                </i>
 
-        <div class="desc">
-            点击线路查看公交运营情况与实时运行指标。
+                当前线路：
+
+                <span id="bus-panel-title"
+                      class="text-blue-600 font-extrabold ml-1">
+                    B1路
+                </span>
+
+            </h4>
+
+            <div class="grid grid-cols-2 gap-4">
+
+                <div class="bg-gray-50 border border-gray-200 rounded p-4 text-center">
+                    <span class="text-xs text-gray-500 block mb-1">
+                        首班车时间
+                    </span>
+
+                    <span id="bus-first-time"
+                          class="text-lg font-bold">
+                        06:00
+                    </span>
+                </div>
+
+                <div class="bg-gray-50 border border-gray-200 rounded p-4 text-center">
+                    <span class="text-xs text-gray-500 block mb-1">
+                        末班车时间
+                    </span>
+
+                    <span id="bus-last-time"
+                          class="text-lg font-bold">
+                        22:30
+                    </span>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-100 rounded p-4 text-center">
+
+                    <span class="text-xs text-blue-600 block mb-1">
+                        在线运行车辆数
+                    </span>
+
+                    <span id="bus-online-count"
+                          class="text-2xl font-extrabold text-blue-700 font-mono">
+                        18
+                    </span>
+
+                </div>
+
+                <div class="bg-red-50 border border-red-100 rounded p-4 text-center">
+
+                    <span class="text-xs text-red-600 block mb-1">
+                        今日故障数
+                    </span>
+
+                    <span id="bus-issue-count"
+                          class="text-2xl font-extrabold text-red-700 font-mono">
+                        0
+                    </span>
+
+                </div>
+
+            </div>
+
         </div>
 
     </div>
@@ -175,67 +241,105 @@ svg{
 
 <script>
 
-const busData = {
+lucide.createIcons();
 
-B1:{
-    name:"B1路",
-    first:"06:00",
-    last:"22:30",
-    count:"36辆",
-    rate:"96%",
-    color:"#2563eb"
-},
+const busLineData = {
 
-B2:{
-    name:"B2路",
-    first:"05:50",
-    last:"22:00",
-    count:"28辆",
-    rate:"94%",
-    color:"#16a34a"
-},
+    B1:{
+        stops:['常州北站总站','辽河路A站','黄河路B站','恐龙城C站'],
+        carLeftPercent:'38%',
+        carName:'B1_102号车',
+        firstTime:'06:00',
+        lastTime:'22:30',
+        onlineCount:'18',
+        issueCount:'0'
+    },
 
-B12:{
-    name:"B12路",
-    first:"06:20",
-    last:"21:40",
-    count:"22辆",
-    rate:"92%",
-    color:"#dc2626"
-}
+    B2:{
+        stops:['常州北站总站','新港路东A站','晋陵北路B站','行政中心C站'],
+        carLeftPercent:'72%',
+        carName:'B2_405号车',
+        firstTime:'06:30',
+        lastTime:'21:30',
+        onlineCount:'12',
+        issueCount:'1'
+    }
 
 };
 
-function changeBus(name){
+function selectBusLine(lineId){
 
-    const bus = busData[name];
+    const btnB1 =
+        document.getElementById('btn-bus-B1');
+
+    const btnB2 =
+        document.getElementById('btn-bus-B2');
+
+    if(lineId==='B1'){
+
+        btnB1.className =
+        "px-4 py-1.5 rounded-lg font-bold text-xs bg-blue-600 text-white shadow-md transition-all";
+
+        btnB2.className =
+        "px-4 py-1.5 rounded-lg font-bold text-xs bg-slate-800 text-gray-400";
+
+    }else{
+
+        btnB2.className =
+        "px-4 py-1.5 rounded-lg font-bold text-xs bg-blue-600 text-white shadow-md transition-all";
+
+        btnB1.className =
+        "px-4 py-1.5 rounded-lg font-bold text-xs bg-slate-800 text-gray-400";
+
+    }
+
+    const data = busLineData[lineId];
+
+    document.getElementById('bus-stop-0').innerText=data.stops[0];
+    document.getElementById('bus-stop-1').innerText=data.stops[1];
+    document.getElementById('bus-stop-2').innerText=data.stops[2];
+    document.getElementById('bus-stop-3').innerText=data.stops[3];
+
+    const car =
+        document.getElementById(
+            'bus-car-indicator'
+        );
+
+    car.style.left =
+        data.carLeftPercent;
+
+    car.querySelector('span').innerText =
+        data.carName;
 
     document.getElementById(
-        "lineName"
-    ).innerText = bus.name;
+        'bus-panel-title'
+    ).innerText =
+        lineId + '路';
 
     document.getElementById(
-        "first"
-    ).innerText = bus.first;
+        'bus-first-time'
+    ).innerText =
+        data.firstTime;
 
     document.getElementById(
-        "last"
-    ).innerText = bus.last;
+        'bus-last-time'
+    ).innerText =
+        data.lastTime;
 
     document.getElementById(
-        "busCount"
-    ).innerText = bus.count;
+        'bus-online-count'
+    ).innerHTML =
+        data.onlineCount +
+        '<span class="text-xs font-normal"> 辆</span>';
 
     document.getElementById(
-        "rate"
-    ).innerText = bus.rate;
+        'bus-issue-count'
+    ).innerHTML =
+        data.issueCount +
+        '<span class="text-xs font-normal"> 起</span>';
 
-    document.getElementById(
-        "line"
-    ).setAttribute(
-        "stroke",
-        bus.color
-    );
+    lucide.createIcons();
+
 }
 
 </script>
