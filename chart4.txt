@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务对象分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+<div id="chart-container"></div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const chart = echarts.init(document.getElementById('chart-container'));
+
+    chart.setOption({
+
+        title: {
+            text: '服务对象',
+            left: '2%',
+            top: '2%',
+            textStyle: {
+                color: '#000',
+                fontSize: 16,
+                fontWeight: 'bold'
+            }
+        },
+
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b}<br/>调用次数：{c} 次<br/>占比：{d}%'
+        },
+
+        legend: {
+            orient: 'vertical',
+            right: '3%',
+            top: 'center',
+            textStyle: {
+                color: '#000'
+            }
+        },
+
+        series: [{
+            name: '调用次数',
+            type: 'pie',
+
+            radius: ['40%', '70%'],   // 环形饼图
+
+            center: ['38%', '58%'],
+
+            avoidLabelOverlap: true,
+
+            itemStyle: {
+                borderRadius: 6,
+                borderColor: '#fff',
+                borderWidth: 2
+            },
+
+            label: {
+                show: true,
+                formatter: '{d}%',
+                color: '#000'
+            },
+
+            labelLine: {
+                length: 10,
+                length2: 10
+            },
+
+            data: [
+                { value: 142, name: '市交警支队' },
+                { value: 185, name: '市交通局' },
+                { value: 115, name: '市城管局' },
+                { value: 168, name: '城投集团' },
+                { value: 125, name: '公交集团' },
+                { value: 195, name: '地铁集团' },
+                { value: 154, name: '高德软件' }
+            ]
+        }]
+    });
+
+    window.addEventListener('resize', function () {
+        chart.resize();
+    });
+
+});
+</script>
+
+</body>
+</html>
