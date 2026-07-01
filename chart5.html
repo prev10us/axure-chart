@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据资源规模</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div id="chart-container"></div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const chart = echarts.init(document.getElementById("chart-container"));
+
+    const option = {
+
+        color: [
+            "#3B82F6",
+            "#10B981",
+            "#F59E0B",
+            "#8B5CF6"
+        ],
+
+        title: {
+
+            text: "数据资源规模",
+
+            left: "2%",
+
+            top: "2%",
+
+            textStyle: {
+
+                color: "#000",
+
+                fontSize: 16,
+
+                fontWeight: "bold"
+
+            }
+
+        },
+
+        tooltip: {
+
+            trigger: "item",
+
+            formatter: function (params) {
+
+                return params.name +
+                    "<br/>资源数量：" +
+                    params.value +
+                    " 个" +
+                    "<br/>占比：" +
+                    params.percent +
+                    "%";
+
+            }
+
+        },
+
+        legend: {
+
+            orient: "vertical",
+
+            right: "3%",
+
+            top: "center",
+
+            itemWidth: 14,
+
+            itemHeight: 14,
+
+            textStyle: {
+
+                color: "#000",
+
+                fontSize: 13
+
+            }
+
+        },
+
+        series: [
+
+            {
+
+                name: "资源分类",
+
+                type: "pie",
+
+                radius: ["42%", "72%"],
+
+                center: ["38%", "58%"],
+
+                avoidLabelOverlap: true,
+
+                itemStyle: {
+
+                    borderRadius: 8,
+
+                    borderColor: "#ffffff",
+
+                    borderWidth: 2
+
+                },
+
+                label: {
+
+                    show: true,
+
+                    color: "#000",
+
+                    fontSize: 13,
+
+                    formatter: "{d}%"
+
+                },
+
+                labelLine: {
+
+                    length: 10,
+
+                    length2: 12
+
+                },
+
+                emphasis: {
+
+                    scale: true,
+
+                    scaleSize: 6
+
+                },
+
+                data: [
+
+                    {
+                        value: 82,
+                        name: "交通运行感知"
+                    },
+
+                    {
+                        value: 68,
+                        name: "综合出行洞察"
+                    },
+
+                    {
+                        value: 54,
+                        name: "公共交通运营"
+                    },
+
+                    {
+                        value: 41,
+                        name: "低空空域感知"
+                    }
+
+                ]
+
+            }
+
+        ]
+
+    };
+
+    chart.setOption(option);
+
+    window.addEventListener("resize", function () {
+
+        chart.resize();
+
+    });
+
+});
+
+</script>
+
+</body>
+
+</html>
