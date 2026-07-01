@@ -1,0 +1,18 @@
+<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'>
+<script src='https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js'></script>
+<style>html,body,#c{height:100%;margin:0;background:#fff;font-family:Arial,"Microsoft YaHei";}</style></head>
+<body><div id='c'></div><script>
+var c=echarts.init(document.getElementById('c'));
+c.setOption({
+title:{text:'数据资源更新情况',left:20,top:16,textStyle:{fontSize:18,fontWeight:'bold'},subtext:'新增资源与更新资源'},
+tooltip:{trigger:'axis',axisPointer:{type:'shadow'}},
+legend:{top:18,right:20},
+grid:{left:60,right:30,top:70,bottom:45},
+xAxis:{type:'category',data:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']},
+yAxis:{type:'value',splitLine:{lineStyle:{color:'#edf2f7'}}},
+series:[
+{name:'新增资源',type:'bar',stack:'t',data:[12,15,18,21,24,26,28,30,27,29,33,36],itemStyle:{borderRadius:[6,6,0,0],color:'#3b82f6'}},
+{name:'更新资源',type:'bar',stack:'t',data:[8,10,9,13,12,14,15,17,16,18,19,20],itemStyle:{borderRadius:[6,6,0,0],color:'#60a5fa'}}
+]});
+window.onresize=()=>c.resize();
+</script></body></html>
