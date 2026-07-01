@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>热门服务排行</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    <style>
+        html,body{
+            margin:0;
+            padding:0;
+            width:100%;
+            height:100%;
+            overflow:hidden;
+            background:transparent;
+        }
+
+        #chart-container{
+            width:100%;
+            height:100%;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chart-container"></div>
+
+<script>
+
+document.addEventListener('DOMContentLoaded',function(){
+
+    const chart=echarts.init(document.getElementById('chart-container'));
+
+    const serviceNames=[
+        '实时路口监测',
+        '道路拥堵排行',
+        '区域人流洞察',
+        '公交运营分析',
+        '道路流量预测',
+        '无人机轨迹',
+        'POI流向预测'
+    ];
+
+    const serviceData=[
+        195,
+        182,
+        171,
+        158,
+        143,
+        126,
+        108
+    ];
+
+    chart.setOption({
+
+        title:{
+            text:'热门服务排行',
+            left:'2%',
+            top:'2%',
+            textStyle:{
+                color:'#000',
+                fontSize:16,
+                fontWeight:'bold'
+            }
+        },
+
+        tooltip:{
+            trigger:'axis',
+            axisPointer:{
+                type:'shadow'
+            }
+        },
+
+        grid:{
+            left:'2%',
+            right:'4%',
+            top:'25%',
+            bottom:'12%',
+            containLabel:true
+        },
+
+        xAxis:{
+            type:'category',
+            data:serviceNames,
+            axisLabel:{
+                color:'#000',
+                interval:0,
+                rotate:0
+            },
+            axisLine:{
+                lineStyle:{
+                    color:'#d1d5db'
+                }
+            }
+        },
+
+        yAxis:{
+            type:'value',
+            name:'调用量(万次)',
+            min:0,
+            max:200,
+            interval:50,
+            nameTextStyle:{
+                color:'#000',
+                padding:[0,0,8,-28]
+            },
+            axisLabel:{
+                color:'#000'
+            },
+            splitLine:{
+                lineStyle:{
+                    color:'#f3f4f6'
+                }
+            }
+        },
+
+        series:[
+            {
+                name:'调用量',
+                type:'bar',
+                barWidth:'42%',
+
+                data:serviceData,
+
+                itemStyle:{
+                    color:'#3b82f6',
+                    borderRadius:[4,4,0,0]
+                },
+
+                label:{
+                    show:true,
+                    position:'top',
+                    color:'#374151'
+                }
+            }
+        ]
+    });
+
+    window.addEventListener('resize',()=>{
+        chart.resize();
+    });
+
+});
+
+</script>
+
+</body>
+</html>
