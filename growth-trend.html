@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>growth-trend</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+html,body{margin:0;height:100%;background:#fff;font-family:Arial,"Microsoft YaHei";}
+#c{width:100%;height:100vh;}
+</style></head><body><div id="c"></div>
+<script>
+var chart=echarts.init(document.getElementById('c'));
+chart.setOption({
+ title:{text:'数据增长趋势',left:20,top:16,textStyle:{fontSize:18,fontWeight:'bold',color:'#1f2937'}},
+ tooltip:{trigger:'axis'},
+ grid:{left:60,right:30,top:80,bottom:50},
+ xAxis:{type:'category',boundaryGap:false,
+ data:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+ axisLine:{lineStyle:{color:'#d1d5db'}},axisTick:{show:false}},
+ yAxis:{type:'value',name:'资源数',splitLine:{lineStyle:{color:'#eef2f7'}},
+ axisLine:{show:false}},
+ series:[{
+  name:'资源总量',type:'line',smooth:true,
+  data:[245,258,272,289,306,325,347,366,388,405,423,446],
+  symbol:'circle',symbolSize:8,
+  lineStyle:{width:3,color:'#3b82f6'},
+  itemStyle:{color:'#3b82f6'},
+  areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(59,130,246,0.45)'},{offset:1,color:'rgba(59,130,246,0.05)'}])}
+ }]
+});
+window.addEventListener('resize',()=>chart.resize());
+</script></body></html>
