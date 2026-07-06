@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>常州北站地图</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#f5f7fa;
+    font-family:"Microsoft YaHei",sans-serif;
+}
+
+#map{
+    width:100%;
+    height:100%;
+}
+
+/* 去掉默认控件 */
+
+.leaflet-control-container{
+    display:none;
+}
+
+/* 去掉获得焦点后的蓝框 */
+
+.leaflet-container{
+    outline:none;
+    background:#eef2f6;
+}
+
+/* 平滑缩放 */
+
+.leaflet-pane{
+    transition:all .2s;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<script>
+
+// 创建地图
+
+const map = L.map('map',{
+
+    zoomControl:false,
+
+    attributionControl:false,
+
+    dragging:true,
+
+    scrollWheelZoom:false,
+
+    doubleClickZoom:false,
+
+    boxZoom:false,
+
+    keyboard:false,
+
+    touchZoom:false
+
+});
+
+// 常州北站
+
+map.setView([31.8604,119.9738],15);
+
+// 科技浅灰底图（与你之前页面一致）
+
+L.tileLayer(
+
+'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+
+{
+
+maxZoom:20,
+
+subdomains:'abcd'
+
+}
+
+).addTo(map);
+
+</script>
+
+</body>
+</html>
