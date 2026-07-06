@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>常州北站地图</title>
+<title>Changzhou North Station Map</title>
 
 <link rel="stylesheet"
 href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -15,13 +15,12 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 html,
 body{
-    margin:0;
-    padding:0;
     width:100%;
     height:100%;
+    margin:0;
+    padding:0;
     overflow:hidden;
     background:#f5f7fa;
-    font-family:"Microsoft YaHei",sans-serif;
 }
 
 #map{
@@ -29,23 +28,40 @@ body{
     height:100%;
 }
 
-/* 去掉默认控件 */
+/* 去掉版权 */
 
-.leaflet-control-container{
-    display:none;
+.leaflet-control-attribution{
+    display:none !important;
 }
 
-/* 去掉获得焦点后的蓝框 */
+/* 去掉缩放按钮 */
+
+.leaflet-control-zoom{
+    display:none !important;
+}
+
+/* 去掉焦点边框 */
 
 .leaflet-container{
     outline:none;
     background:#eef2f6;
+    font-family:"Microsoft YaHei";
 }
 
-/* 平滑缩放 */
+/* 鼠标样式 */
 
-.leaflet-pane{
-    transition:all .2s;
+.leaflet-grab{
+    cursor:grab;
+}
+
+.leaflet-dragging .leaflet-grab{
+    cursor:grabbing;
+}
+
+/* 让瓦片缩放更平滑 */
+
+.leaflet-tile{
+    image-rendering:auto;
 }
 
 </style>
@@ -58,7 +74,9 @@ body{
 
 <script>
 
+//=======================
 // 创建地图
+//=======================
 
 const map = L.map('map',{
 
@@ -66,25 +84,28 @@ const map = L.map('map',{
 
     attributionControl:false,
 
-    dragging:true,
+    zoomSnap:0.5,
 
-    scrollWheelZoom:false,
+    zoomDelta:0.5,
 
-    doubleClickZoom:false,
+    wheelPxPerZoomLevel:120,
 
-    boxZoom:false,
-
-    keyboard:false,
-
-    touchZoom:false
+    preferCanvas:true
 
 });
 
+//=======================
 // 常州北站
+//=======================
 
-map.setView([31.8604,119.9738],15);
+map.setView(
+    [31.8604,119.9738],
+    15
+);
 
-// 科技浅灰底图（与你之前页面一致）
+//=======================
+// 科技浅灰底图
+//=======================
 
 L.tileLayer(
 
@@ -94,11 +115,43 @@ L.tileLayer(
 
 maxZoom:20,
 
-subdomains:'abcd'
+minZoom:12,
+
+subdomains:'abcd',
+
+updateWhenIdle:true,
+
+keepBuffer:6
 
 }
 
 ).addTo(map);
+
+//=======================
+// 浏览器窗口变化
+//=======================
+
+window.addEventListener("resize",function(){
+
+    map.invalidateSize();
+
+});
+
+//=======================
+// Axure页面切换时刷新地图
+//=======================
+
+setTimeout(function(){
+
+    map.invalidateSize();
+
+},300);
+
+setTimeout(function(){
+
+    map.invalidateSize();
+
+},1000);
 
 </script>
 
