@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>交通运行感知 · 常州北底图 (1100×250)</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  html,body{margin:0;padding:0}
+  /* 精确 1100×250，截图即得该尺寸图片 */
+  #map{width:1100px;height:250px;background:#eef2f6}
+  .leaflet-control-attribution{display:none}      /* 截图干净 */
+  .leaflet-interactive{cursor:pointer!important;transition:.18s}
+  /* 标注点样式（与产品原型一致） */
+  .map-dot{width:16px;height:16px;border-radius:50%;border:3px solid #fff;background:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,.14),0 6px 14px rgba(15,23,42,.25)}
+  .map-dot.warn{background:#f97316;box-shadow:0 0 0 4px rgba(249,115,22,.16),0 6px 14px rgba(15,23,42,.25)}
+  .map-dot.event{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.16),0 6px 14px rgba(15,23,42,.25)}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+// ===== 中心点：常州北站 (31.854, 119.955) =====
+const CENTER = [31.854, 119.955];
+const map = L.map('map', {zoomControl:false, attributionControl:false, dragging:true})
+            .setView(CENTER, 14);
+
+// ===== 底图瓦片 =====
+// 默认 Carto 浅色（无需 key，英文标注）。如需中文标注，把下面一行换成高德/天地图（需 key）：
+//   L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:'1234'}).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  {subdomains:'abcd', maxZoom:19}).addTo(map);
+
+// ===== 标注（位置可随意调整，均为示意） =====
+function icon(k){return L.divIcon({className:'',html:'<div class="map-dot '+k+'"></div>',iconSize:[16,16],iconAnchor:[8,8]})}
+
+// 路口（蓝）
+[
+  [31.858,119.955],[31.852,119.962],[31.851,119.948]
+].forEach(p=>L.marker(p,{icon:icon('')}).addTo(map));
+
+// 路段（彩色粗线）
+[
+  {c:'#ef4444', p:[[31.856,119.945],[31.856,119.968]]},   // 辽河路
+  {c:'#eab308', p:[[31.862,119.955],[31.846,119.955]]},   // 通江中路
+  {c:'#22c55e', p:[[31.850,119.940],[31.850,119.972]]}    // 黄河路
+].forEach(r=>L.polyline(r.p,{color:r.c,weight:6,opacity:.85,lineJoin:'round'}).addTo(map));
+
+// 路网评价区（绿）
+L.polygon([[31.860,119.948],[31.862,119.968],[31.846,119.972],[31.844,119.950]],
+  {color:'#10b981',weight:2,fillColor:'#10b981',fillOpacity:.14}).addTo(map);
+
+// 天气影响区（橙圈）
+L.circle([31.846,119.948],{color:'#f97316',weight:2,fillColor:'#f97316',fillOpacity:.16,radius:600}).addTo(map);
+
+// 预警（橙）/ 事件（红）
+L.marker([31.857,119.963],{icon:icon('warn')}).addTo(map);
+L.marker([31.848,119.958],{icon:icon('event')}).addTo(map);
+</script>
+</body>
+</html>
