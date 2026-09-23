@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API计费方式</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div id="chart-container"></div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const chart = echarts.init(document.getElementById("chart-container"));
+
+    const DATA = [
+
+        {
+            value: 96,
+            name: "包月"
+        },
+
+        {
+            value: 58,
+            name: "包年"
+        }
+
+    ];
+
+    const total = DATA.reduce(function (s, d) { return s + d.value; }, 0);
+
+    const option = {
+
+        color: [
+            "#3B82F6",
+            "#10B981"
+        ],
+
+        title: {
+
+            text: "API计费方式",
+
+            subtext: "按订阅服务数统计 · 合计 " + total + " 个",
+
+            left: "2%",
+
+            top: "2%",
+
+            textStyle: {
+
+                color: "#000",
+
+                fontSize: 16,
+
+                fontWeight: "bold"
+
+            },
+
+            subtextStyle: {
+
+                color: "#6b7280",
+
+                fontSize: 12
+
+            }
+
+        },
+
+        tooltip: {
+
+            trigger: "item",
+
+            formatter: function (params) {
+
+                return params.name +
+                    "<br/>订阅服务数：" +
+                    params.value +
+                    " 个" +
+                    "<br/>占比：" +
+                    params.percent +
+                    "%";
+
+            }
+
+        },
+
+        legend: {
+
+            orient: "vertical",
+
+            right: "3%",
+
+            top: "center",
+
+            itemWidth: 14,
+
+            itemHeight: 14,
+
+            formatter: function (name) {
+
+                const item = DATA.filter(function (d) { return d.name === name; })[0];
+
+                return name + "  " + item.value + " 个";
+
+            },
+
+            textStyle: {
+
+                color: "#000",
+
+                fontSize: 13
+
+            }
+
+        },
+
+        series: [
+
+            {
+
+                name: "计费方式",
+
+                type: "pie",
+
+                radius: ["42%", "72%"],
+
+                center: ["38%", "58%"],
+
+                avoidLabelOverlap: true,
+
+                itemStyle: {
+
+                    borderRadius: 8,
+
+                    borderColor: "#ffffff",
+
+                    borderWidth: 2
+
+                },
+
+                label: {
+
+                    show: true,
+
+                    color: "#000",
+
+                    fontSize: 13,
+
+                    formatter: "{d}%"
+
+                },
+
+                labelLine: {
+
+                    length: 10,
+
+                    length2: 12
+
+                },
+
+                emphasis: {
+
+                    scale: true,
+
+                    scaleSize: 6
+
+                },
+
+                data: DATA
+
+            }
+
+        ]
+
+    };
+
+    chart.setOption(option);
+
+    window.addEventListener("resize", function () {
+
+        chart.resize();
+
+    });
+
+});
+
+</script>
+
+</body>
+
+</html>

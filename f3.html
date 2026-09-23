@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指标目录数量</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div id="chart-container"></div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const chart = echarts.init(document.getElementById("chart-container"));
+
+    // 四大类颜色与「资源分类占比」保持一致
+    const CATS = [
+        {
+            value: 5,
+            name: "交通运行感知",
+            items: "路口运行监测、路段运行评价、路网运行评价、道路预测预警、公路事件监测"
+        },
+        {
+            value: 6,
+            name: "综合出行洞察",
+            items: "人流热力分析、车流运行分析、通勤走廊分析、出行方式分析、OD迁徙分析、流量分担分析"
+        },
+        {
+            value: 4,
+            name: "公共交通运营",
+            items: "公交线路资源、公交车辆资源、场站资源管理、运营监测分析"
+        },
+        {
+            value: 4,
+            name: "低空空域感知",
+            items: "飞行运行监测、飞行问题监测、空域资源管理、低空感知应用"
+        }
+    ];
+
+    const option = {
+
+        color: [
+            "#3B82F6",
+            "#10B981",
+            "#F59E0B",
+            "#8B5CF6"
+        ],
+
+        title: {
+
+            text: "指标目录数量",
+
+            subtext: "合计 " + CATS.reduce(function (s, c) { return s + c.value; }, 0) + " 个指标目录",
+
+            left: "2%",
+
+            top: "2%",
+
+            textStyle: {
+
+                color: "#000",
+
+                fontSize: 16,
+
+                fontWeight: "bold"
+
+            },
+
+            subtextStyle: {
+
+                color: "#6b7280",
+
+                fontSize: 12
+
+            }
+
+        },
+
+        tooltip: {
+
+            trigger: "item",
+
+            extraCssText: "max-width:320px;white-space:normal;line-height:1.6;",
+
+            formatter: function (params) {
+
+                return params.name +
+                    "<br/>指标目录数量：" +
+                    params.value +
+                    " 个" +
+                    "<br/>占比：" +
+                    params.percent +
+                    "%" +
+                    "<br/>" +
+                    params.data.items;
+
+            }
+
+        },
+
+        legend: {
+
+            orient: "vertical",
+
+            right: "3%",
+
+            top: "center",
+
+            itemWidth: 14,
+
+            itemHeight: 14,
+
+            formatter: function (name) {
+
+                const item = CATS.filter(function (c) { return c.name === name; })[0];
+
+                return name + "  " + item.value + " 个";
+
+            },
+
+            textStyle: {
+
+                color: "#000",
+
+                fontSize: 13
+
+            }
+
+        },
+
+        series: [
+
+            {
+
+                name: "指标目录数量",
+
+                type: "pie",
+
+                radius: ["42%", "72%"],
+
+                center: ["38%", "58%"],
+
+                avoidLabelOverlap: true,
+
+                itemStyle: {
+
+                    borderRadius: 8,
+
+                    borderColor: "#ffffff",
+
+                    borderWidth: 2
+
+                },
+
+                label: {
+
+                    show: true,
+
+                    color: "#000",
+
+                    fontSize: 13,
+
+                    formatter: "{d}%"
+
+                },
+
+                labelLine: {
+
+                    length: 10,
+
+                    length2: 12
+
+                },
+
+                emphasis: {
+
+                    scale: true,
+
+                    scaleSize: 6
+
+                },
+
+                data: CATS
+
+            }
+
+        ]
+
+    };
+
+    chart.setOption(option);
+
+    window.addEventListener("resize", function () {
+
+        chart.resize();
+
+    });
+
+});
+
+</script>
+
+</body>
+
+</html>

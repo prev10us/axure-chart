@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资源新增情况</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: transparent;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        #chart-container {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div id="chart-container"></div>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const chart = echarts.init(document.getElementById("chart-container"));
+
+    // 四大类颜色与「资源分类占比」保持一致
+    const CATS = [
+        { name: "交通运行感知", color: "#3B82F6", data: [3, 4, 5, 4, 5, 6, 7, 8] },
+        { name: "综合出行洞察", color: "#10B981", data: [2, 2, 3, 3, 4, 5, 6, 7] },
+        { name: "公共交通运营", color: "#F59E0B", data: [1, 2, 2, 2, 3, 3, 4, 4] },
+        { name: "低空空域感知", color: "#8B5CF6", data: [0, 1, 2, 1, 2, 4, 5, 6] }
+    ];
+
+    const quarters = [
+        "2025Q1", "2025Q2", "2025Q3", "2025Q4",
+        "2026Q1", "2026Q2", "2026Q3", "2026Q4"
+    ];
+
+    const option = {
+
+        color: CATS.map(function (c) { return c.color; }),
+
+        title: {
+
+            text: "资源新增情况",
+
+            subtext: "按季度 · 单位：个",
+
+            left: "2%",
+
+            top: "2%",
+
+            textStyle: {
+
+                color: "#000",
+
+                fontSize: 16,
+
+                fontWeight: "bold"
+
+            },
+
+            subtextStyle: {
+
+                color: "#6b7280",
+
+                fontSize: 12
+
+            }
+
+        },
+
+        tooltip: {
+
+            trigger: "axis",
+
+            axisPointer: {
+
+                type: "shadow"
+
+            },
+
+            formatter: function (params) {
+
+                let total = 0;
+
+                let html = params[0].axisValue + "<br/>";
+
+                params.forEach(function (p) {
+
+                    total += p.value;
+
+                    html += p.marker + p.seriesName + "：" + p.value + " 个<br/>";
+
+                });
+
+                html += "<b>当季合计：" + total + " 个</b>";
+
+                return html;
+
+            }
+
+        },
+
+        legend: {
+
+            orient: "horizontal",
+
+            right: "3%",
+
+            top: "4%",
+
+            itemWidth: 14,
+
+            itemHeight: 14,
+
+            textStyle: {
+
+                color: "#000",
+
+                fontSize: 12
+
+            }
+
+        },
+
+        grid: {
+
+            left: "2%",
+
+            right: "4%",
+
+            top: "24%",
+
+            bottom: "10%",
+
+            containLabel: true
+
+        },
+
+        xAxis: {
+
+            type: "category",
+
+            data: quarters,
+
+            axisLabel: {
+
+                color: "#000",
+
+                interval: 0
+
+            },
+
+            axisLine: {
+
+                lineStyle: {
+
+                    color: "#d1d5db"
+
+                }
+
+            },
+
+            axisTick: {
+
+                show: false
+
+            }
+
+        },
+
+        yAxis: {
+
+            type: "value",
+
+            name: "新增资源(个)",
+
+            min: 0,
+
+            max: 30,
+
+            interval: 10,
+
+            nameTextStyle: {
+
+                color: "#000",
+
+                padding: [0, 0, 8, -34]
+
+            },
+
+            axisLabel: {
+
+                color: "#000"
+
+            },
+
+            splitLine: {
+
+                lineStyle: {
+
+                    color: "#f3f4f6"
+
+                }
+
+            }
+
+        },
+
+        series: CATS.map(function (c, i) {
+
+            return {
+
+                name: c.name,
+
+                type: "bar",
+
+                stack: "total",
+
+                barWidth: "46%",
+
+                data: c.data,
+
+                itemStyle: {
+
+                    color: c.color,
+
+                    borderRadius: i === CATS.length - 1 ? [4, 4, 0, 0] : 0
+
+                }
+
+            };
+
+        })
+
+    };
+
+    chart.setOption(option);
+
+    window.addEventListener("resize", function () {
+
+        chart.resize();
+
+    });
+
+});
+
+</script>
+
+</body>
+
+</html>
